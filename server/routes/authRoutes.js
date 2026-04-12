@@ -171,7 +171,7 @@ router.post('/upload', upload.single('file'), (req, res) => {
     
     // --- FIX 3: Construct the Full URL ---
     // Ensure this matches your server port (5000)
-    const fileUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+    const fileUrl = `http://localhost:5002/uploads/${req.file.filename}`;
     
     res.json({ 
       message: 'File uploaded successfully',

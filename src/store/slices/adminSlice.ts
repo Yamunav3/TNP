@@ -421,7 +421,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/admin';
+const API_URL = 'http://localhost:5002/api/admin';
 
 // ==========================================
 // 1. INTERFACES (Types)

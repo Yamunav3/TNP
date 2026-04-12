@@ -1,5 +1,6 @@
 
-
+import { io } from 'socket.io-client';
+import toast from 'react-hot-toast'; // or use whatever toast library you prefer
 import React, { useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
@@ -20,6 +21,8 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 
+import { useNavigate } from "react-router-dom";
+
 // --- Animations ---
 const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } };
 const itemVariants = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } };
@@ -33,6 +36,7 @@ const getGreeting = (name: string) => {
 };
 
 const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   
   const { profile, isLoading: profileLoading } = useAppSelector((state) => state.profile);
@@ -47,15 +51,66 @@ const Dashboard: React.FC = () => {
     dispatch(fetchDrives());
   }, [dispatch]);
 
+
+  useEffect(() => {
+    if (!profile) return; // Wait until we know who the user is
+
+    // 1. Connect to the backend
+    const socket = io("http://localhost:5002", {
+      query: { 
+        userId: (profile as any)._id, 
+        role: "student" 
+      }
+    });
+
+    // Listen for application submission confirmation
+    socket.on('notification', (data) => {
+      console.log('📢 Notification received:', data);
+      toast.success(data.message || 'New notification received!');
+      
+      // Refresh applications and drives when a new application is submitted
+      if (data.title === 'Application Submitted') {
+        dispatch(fetchApplications());
+        dispatch(fetchDrives());
+      }
+    });
+
+    // Listen for application status updates from admin
+    socket.on('applicationStatusUpdate', (data) => {
+      console.log('📝 Application status update:', data);
+      toast.info(`Your application status: ${data.status}`);
+      // Refresh applications to get latest status
+      dispatch(fetchApplications());
+    });
+
+    socket.on('connect', () => {
+      console.log('✅ Connected to notification server');
+    });
+
+    socket.on('disconnect', () => {
+      console.log('❌ Disconnected from notification server');
+    });
+
+    return () => {
+      socket.off('notification');
+      socket.off('applicationStatusUpdate');
+      socket.off('connect');
+      socket.off('disconnect');
+      socket.disconnect();
+    };
+  }, [profile, dispatch]);
+
   // 1. Create a Set of Applied Drive IDs for O(1) lookup speed
   const appliedDriveIds = useMemo(() => {
-    return new Set(applications.map(app => app.driveId));
+    // Ensure applications is an array before mapping
+    const appsArray = Array.isArray(applications) ? applications : [];
+    return new Set(appsArray.map(app => app.driveId));
   }, [applications]);
 
   // 2. Stats Calculation with SAFE CGPA CHECK
   const stats = useMemo(() => {
-    const safeDrives = drives || [];
-    const safeApps = applications || [];
+    const safeDrives = Array.isArray(drives) ? drives : [];
+    const safeApps = Array.isArray(applications) ? applications : [];
 
     // --- FIX 1: Robust Eligibility Check ---
     const eligibleDrives = safeDrives.filter(d => {
@@ -126,7 +181,7 @@ const Dashboard: React.FC = () => {
 
   // 3. Upcoming Drives List with SAFE CGPA CHECK
   const upcomingDrivesList = useMemo(() => 
-    (drives || [])
+    [...(Array.isArray(drives) ? drives : [])]
       .filter(d => {
           if (appliedDriveIds.has(d._id || d.id)) return false;
           
@@ -144,7 +199,7 @@ const Dashboard: React.FC = () => {
   [drives, appliedDriveIds, profile]);
 
   const recentApplicationsList = useMemo(() => 
-    (applications || [])
+    [...(Array.isArray(applications) ? applications : [])]
       .sort((a, b) => new Date(b.appliedDate).getTime() - new Date(a.appliedDate).getTime())
       .slice(0, 4), 
   [applications]);
@@ -252,7 +307,7 @@ const Dashboard: React.FC = () => {
               <CardTitle className="text-lg font-display flex items-center gap-2">
                 <Briefcase className="w-5 h-5 text-primary" /> Eligible Drives
               </CardTitle>
-              <Link to="/drives">
+              <Link to="/dashboard/drives">
                 <Button variant="ghost" size="sm" className="text-primary h-8 hover:bg-primary/5">
                   View All <ArrowRight className="w-3 h-3 ml-1" />
                 </Button>
@@ -292,10 +347,10 @@ const Dashboard: React.FC = () => {
         <motion.div variants={itemVariants}>
           <Card className="h-full border-border/50 flex flex-col">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg font-display flex items-center gap-2">
+              <CardTitle className="text-lg font-display flex items-center gap-2"  onClick={() => navigate("/driversPage")}>
                 <ClipboardList className="w-5 h-5 text-info" /> Recent Applications
               </CardTitle>
-              <Link to="/applications">
+              <Link to="/dashboard/applications">
                 <Button variant="ghost" size="sm" className="text-info h-8 hover:bg-info/10">View All <ArrowRight className="w-3 h-3 ml-1" /></Button>
               </Link>
             </CardHeader>
@@ -339,10 +394,10 @@ const Dashboard: React.FC = () => {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { label: 'Browse Drives', icon: Briefcase, color: 'text-primary', bg: 'bg-primary/10', link: '/drives' },
-                { label: 'Track Applications', icon: ClipboardList, color: 'text-info', bg: 'bg-info/10', link: '/applications' },
-                { label: 'View Schedule', icon: Calendar, color: 'text-warning', bg: 'bg-warning/10', link: '/schedule' },
-                { label: 'View Analytics', icon: TrendingUp, color: 'text-success', bg: 'bg-success/10', link: '/analytics' },
+                { label: 'Browse Drives', icon: Briefcase, color: 'text-primary', bg: 'bg-primary/10', link: '/dashboard/drives' },
+                { label: 'Track Applications', icon: ClipboardList, color: 'text-info', bg: 'bg-info/10', link: '/dashboard/applications' },
+                { label: 'View Schedule', icon: Calendar, color: 'text-warning', bg: 'bg-warning/10', link: '/dashboard/schedule' },
+                { label: 'View Analytics', icon: TrendingUp, color: 'text-success', bg: 'bg-success/10', link: '/dashboard/analytics' },
               ].map((action) => (
                 <Link to={action.link} key={action.label} className="group">
                   <div className="p-4 rounded-xl border border-border bg-card hover:bg-secondary/50 hover:border-primary/20 transition-all text-center h-full flex flex-col items-center justify-center">

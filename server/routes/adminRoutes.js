@@ -8,12 +8,15 @@ const mongoose = require('mongoose');
 const adminController = require('../controllers/adminController');
 router.get('/students', async (req, res) => {
   try {
+    console.log('📥 GET /api/admin/students - Fetching all students...');
     // Fetch all users where role is 'student', excluding their passwords
     const students = await User.find({ role: 'student' }).select('-password');
+    console.log(`✅ Found ${students.length} students`);
     res.json(students);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server Error fetching students' });
+    console.error('❌ Admin Students Error:', error.message);
+    console.error(error.stack);
+    res.status(500).json({ message: 'Server Error fetching students', error: error.message });
   }
 });
 
@@ -27,13 +30,23 @@ router.get('/students/:id', async (req, res) => {
       // 1. Find the specific student
       { $match: { _id: new mongoose.Types.ObjectId(req.params.id) } },
 
-      // 2. Join with Applications
+      // 2. Join with Applications (using correct field: studentId, not userId)
       {
         $lookup: {
           from: 'applications',
           localField: '_id',
-          foreignField: 'userId',
+          foreignField: 'studentId',
           as: 'applications'
+        }
+      },
+
+      // 2b. Join with Drives for each application
+      {
+        $lookup: {
+          from: 'drives',
+          localField: 'applications.driveId',
+          foreignField: '_id',
+          as: 'drives'
         }
       },
 
@@ -42,18 +55,31 @@ router.get('/students/:id', async (req, res) => {
         $project: {
           name: 1,
           email: 1,
-          phone: 1,
           department: 1,
           year: 1,
           cgpa: 1,
           backlogs: 1,
-          rollNumber: 1, // Assuming you have this field, or use _id
           applications: {
-            companyName: 1,
-            role: 1,
-            status: 1,
-            appliedDate: 1,
-            package: 1
+            $map: {
+              input: '$applications',
+              as: 'app',
+              in: {
+                driveId: '$$app.driveId',
+                status: '$$app.status',
+                appliedDate: '$$app.appliedDate'
+              }
+            }
+          },
+          drives: {
+            $map: {
+              input: '$drives',
+              as: 'drive',
+              in: {
+                companyName: '$$drive.companyName',
+                role: '$$drive.role',
+                package: '$$drive.package'
+              }
+            }
           }
         }
       }

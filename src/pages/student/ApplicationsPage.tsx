@@ -2,6 +2,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { io } from 'socket.io-client';
+import toast from 'react-hot-toast';
 import {
   List,
   LayoutGrid,
@@ -121,6 +123,7 @@ const ApplicationsPage: React.FC = () => {
   
   // 1. Redux State
   const { applications, isLoading, error } = useAppSelector((state) => state.applications);
+  const { profile } = useAppSelector((state) => state.profile);
 
   // 2. Local State
   const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
@@ -133,6 +136,39 @@ const ApplicationsPage: React.FC = () => {
   useEffect(() => {
     dispatch(fetchApplications());
   }, [dispatch]);
+
+  // 3.5 Setup Socket Listeners for Real-time Updates
+  useEffect(() => {
+    if (!profile) return;
+
+    const socket = io("http://localhost:5002", {
+      query: { 
+        userId: (profile as any)._id, 
+        role: "student" 
+      }
+    });
+
+    // Listen for application status updates
+    socket.on('applicationStatusUpdate', (data) => {
+      console.log('📝 Application status updated:', data);
+      toast.success(`Application status updated to: ${data.status}`);
+      dispatch(fetchApplications());
+    });
+
+    // Listen for new application confirmations
+    socket.on('notification', (data) => {
+      if (data.title === 'Application Submitted') {
+        console.log('✅ New application submitted:', data);
+        dispatch(fetchApplications());
+      }
+    });
+
+    return () => {
+      socket.off('applicationStatusUpdate');
+      socket.off('notification');
+      socket.disconnect();
+    };
+  }, [profile, dispatch]);
 
   // 4. Stats Calculation
   const stats = useMemo(() => {

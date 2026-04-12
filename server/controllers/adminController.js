@@ -5,6 +5,7 @@ const Application = require('../models/Application');
 
 exports.getDashboardStats = async (req, res) => {
   try {
+    console.log('📥 GET /api/admin/dashboard-stats - Fetching dashboard stats...');
     const now = new Date();
     const firstDayCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const firstDayLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -146,7 +147,8 @@ exports.getDashboardStats = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Dashboard Stats Error:", error);
-    res.status(500).json({ message: 'Server Error fetching stats' });
+    console.error("❌ Dashboard Stats Error:", error.message);
+    console.error(error.stack);
+    res.status(500).json({ message: 'Server Error fetching stats', error: error.message });
   }
 };

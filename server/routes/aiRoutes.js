@@ -1,18 +1,26 @@
 const express = require('express');
 const OpenAI = require('openai');
+const path = require('path');
 const router = express.Router();
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
-// Initialize Groq client (using OpenAI compatibility)
-const openai = new OpenAI({
-  apiKey: process.env.GROQ_API_KEY,
-  baseURL: "https://api.groq.com/openai/v1",
-});
+// Helper function to get Groq client with lazy initialization
+const getGroqClient = () => {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) {
+    throw new Error('GROQ_API_KEY is not set in environment variables');
+  }
+  return new OpenAI({
+    apiKey: apiKey,
+    baseURL: "https://api.groq.com/openai/v1",
+  });
+};
 
 // --- 1. CHAT ENDPOINT ---
 router.post('/chat', async (req, res) => {
   try {
     const { messages, systemPrompt } = req.body;
+    const openai = getGroqClient();
 
     // --- CRITICAL FIX ---
     // We must pass the PREVIOUS conversation history to the model.
@@ -23,7 +31,7 @@ router.post('/chat', async (req, res) => {
     ];
 
     const completion = await openai.chat.completions.create({
-      model: "llama-3.3-70b-versatile", // Or "gpt-3.5-turbo" / "gemini-pro"
+    model: "llama3-70b-8192", // Or "gpt-3.5-turbo" / "gemini-pro"
       messages: conversation,
       temperature: 0.7, // Lower temperature = less random / less repetition
     });
@@ -40,6 +48,7 @@ router.post('/chat', async (req, res) => {
 router.post('/quiz', async (req, res) => {
   try {
     const { prompt } = req.body;
+    const openai = getGroqClient();
 
     // Llama-3 instruction to force JSON
     const jsonPrompt = `

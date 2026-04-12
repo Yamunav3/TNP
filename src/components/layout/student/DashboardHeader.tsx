@@ -35,7 +35,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 
 // --- CONFIG ---
 // Replace with your actual Backend URL
-const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:5002';
 
 const notificationIcons = {
   info: Info,

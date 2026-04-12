@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 // Ensure this matches your backend URL
-const API_URL = 'http://localhost:5000/api/applications';
+const API_URL = 'http://localhost:5002/api/applications';
 
 export type ApplicationStatus = 'applied' | 'screening' | 'shortlisted' | 'interview' | 'selected' | 'rejected';
 
@@ -41,19 +41,19 @@ const initialState: ApplicationsState = {
 };
 
 // --- 1. THUNK: FETCH APPLICATIONS ---
-// Updated to include Token as well, so your dashboard works later
 export const fetchApplications = createAsyncThunk(
   'applications/fetch', 
-  async (_, { rejectWithValue }) => {
+  async (studentId?: string, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
       const config = { headers: { Authorization: `Bearer ${token}` } };
       
-      // Uncomment this when your backend route is ready
-      // const response = await axios.get(`${API_URL}/my-applications`, config);
-      // return response.data;
-      return []; 
+      // Fetch applications from backend
+      const response = await axios.get(`${API_URL}/my-applications`, config);
+      // Extract the applications array from the response
+      return response.data.applications || []; 
     } catch (error: any) {
+      console.error("❌ Failed to fetch applications:", error.response?.data);
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch');
     }
 });
@@ -97,7 +97,23 @@ export const submitApplication = createAsyncThunk(
 const applicationsSlice = createSlice({
   name: 'applications',
   initialState,
-  reducers: {},
+  reducers: {
+    // Add a new application manually (for socket updates)
+    addNewApplication: (state, action: PayloadAction<Application>) => {
+      state.applications.unshift(action.payload);
+    },
+    // Update application status (for admin status updates via socket)
+    updateApplicationStatus: (state, action: PayloadAction<{ applicationId: string; status: ApplicationStatus }>) => {
+      const app = state.applications.find(a => (a._id || a.id) === action.payload.applicationId);
+      if (app) {
+        app.status = action.payload.status;
+      }
+    },
+    // Refresh entire applications list
+    setApplications: (state, action: PayloadAction<Application[]>) => {
+      state.applications = action.payload;
+    }
+  },
   extraReducers: (builder) => {
     // Submit Handlers
     builder
@@ -107,12 +123,26 @@ const applicationsSlice = createSlice({
       })
       .addCase(submitApplication.fulfilled, (state, action) => {
         state.isLoading = false;
+        state.error = null;
 
         if (action.payload.application) {
-            state.applications.unshift(action.payload.application);
-        } 
-        // Optional: Add the new application to the state immediately
-        // state.applications.unshift(action.payload.application); 
+          // Add the new application to the top of the list with all details
+          const newApp: Application = {
+            _id: action.payload.application._id,
+            id: action.payload.application.id,
+            driveId: action.payload.application.driveId,
+            companyName: action.payload.application.companyName,
+            companyLogo: action.payload.application.companyLogo,
+            role: action.payload.application.role,
+            appliedDate: action.payload.application.appliedDate,
+            status: action.payload.application.status || 'applied',
+            currentRound: 1,
+            totalRounds: 5,
+            package: action.payload.application.package,
+            location: action.payload.application.location
+          };
+          state.applications.unshift(newApp);
+        }
       })
       .addCase(submitApplication.rejected, (state, action) => {
         state.isLoading = false;
@@ -134,4 +164,5 @@ const applicationsSlice = createSlice({
   }
 });
 
+export const { addNewApplication, updateApplicationStatus, setApplications } = applicationsSlice.actions;
 export default applicationsSlice.reducer;

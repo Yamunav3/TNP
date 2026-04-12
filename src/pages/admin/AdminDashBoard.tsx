@@ -47,7 +47,7 @@ const AdminDashboard: React.FC = () => {
     if (!user || user.role !== 'admin') return;
 
     // Connect to Backend Socket
-    const socket = io('http://localhost:5000', {
+    const socket = io('http://localhost:5002', {
       query: { 
         userId: user._id,
         role: user.role // Important: Tells server to add us to 'admins' room

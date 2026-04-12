@@ -1,6 +1,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { io } from 'socket.io-client';
+import defaultToast from 'react-hot-toast';
 import {
   Search, MapPin, Clock, Users, ChevronDown, Briefcase, Check, X,
   SlidersHorizontal, Bookmark, AlertCircle, TrendingUp,
@@ -53,6 +55,7 @@ const DrivesPage: React.FC = () => {
   const { user } = useAuth();
 
   const { filteredDrives, filters, drives, loading } = useAppSelector((state) => state.drives);
+  const { profile } = useAppSelector((state) => state.profile);
   const [searchValue, setSearchValue] = useState(filters.search);
   const [savedDrives, setSavedDrives] = useState<string[]>([]);
   const [applyingId, setApplyingId] = useState<string | null>(null); // Track which drive is applying
@@ -61,6 +64,31 @@ const DrivesPage: React.FC = () => {
   useEffect(() => {
     dispatch(fetchDrives());
   }, [dispatch]);
+
+  // --- EFFECT: SOCKET LISTENERS FOR REAL-TIME UPDATES ---
+  useEffect(() => {
+    if (!profile) return;
+
+    const socket = io("http://localhost:5002", {
+      query: { 
+        userId: (profile as any)._id, 
+        role: "student" 
+      }
+    });
+
+    // Listen for application submission (to refresh drive counts)
+    socket.on('notification', (data) => {
+      if (data.title === 'Application Submitted') {
+        console.log('📢 Application submitted, refreshing drives...', data);
+        dispatch(fetchDrives()); // Refresh to update totalApplicants count
+      }
+    });
+
+    return () => {
+      socket.off('notification');
+      socket.disconnect();
+    };
+  }, [profile, dispatch]);
 
   // --- EFFECT: FILTER & SEARCH ---
   useEffect(() => {

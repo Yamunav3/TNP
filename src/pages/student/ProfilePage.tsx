@@ -161,7 +161,7 @@ const ProfilePage = () => {
               phone: personalForm.phone,
               address: personalForm.address
           };
-          await axios.put('http://localhost:5000/api/auth/profile', payload);
+          await axios.put('http://localhost:5002/api/auth/profile', payload);
           updateUser(payload as any); 
           setProfile(prev => ({
               ...prev,
@@ -193,7 +193,7 @@ const ProfilePage = () => {
               cgpa: parseFloat(academicForm.cgpa),
               backlogs: parseInt(academicForm.backlogs)
           };
-          await axios.put('http://localhost:5000/api/auth/profile', payload);
+          await axios.put('http://localhost:5002/api/auth/profile', payload);
           updateUser({ cgpa: payload.cgpa, backlogs: payload.backlogs });
           setProfile(prev => ({
               ...prev,
@@ -215,7 +215,7 @@ const ProfilePage = () => {
           const updatedLocalSkills = [...profile.skills[skillType], newSkill];
           if (skillType === 'technical') {
               const allTechnicalSkills = [...(user?.skills || []), newSkill];
-              await axios.put('http://localhost:5000/api/auth/profile', { userId: user?._id, skills: allTechnicalSkills });
+              await axios.put('http://localhost:5002/api/auth/profile', { userId: user?._id, skills: allTechnicalSkills });
               updateUser({ skills: allTechnicalSkills });
           }
           setProfile(prev => ({ ...prev, skills: { ...prev.skills, [skillType]: updatedLocalSkills } }));
@@ -231,7 +231,7 @@ const ProfilePage = () => {
       setProfile(prev => ({ ...prev, skills: { ...prev.skills, [type]: updatedSkills } }));
       if (type === 'technical') {
           try {
-              await axios.put('http://localhost:5000/api/auth/profile', { userId: user?._id, skills: updatedSkills });
+              await axios.put('http://localhost:5002/api/auth/profile', { userId: user?._id, skills: updatedSkills });
               updateUser({ skills: updatedSkills });
           } catch (error) { console.error("Failed to sync delete"); }
       }
@@ -249,7 +249,7 @@ const ProfilePage = () => {
           const formData = new FormData();
           formData.append('file', certForm.file);
           
-          const uploadRes = await axios.post('http://localhost:5000/api/auth/upload', formData, {
+          const uploadRes = await axios.post('http://localhost:5002/api/auth/upload', formData, {
                headers: { 'Content-Type': 'multipart/form-data' }
           });
 
@@ -261,7 +261,7 @@ const ProfilePage = () => {
           };
 
           const updatedCerts = [...profile.certs, newCert];
-          await axios.put('http://localhost:5000/api/auth/profile', {
+          await axios.put('http://localhost:5002/api/auth/profile', {
               userId: user?._id,
               certs: updatedCerts
           });
@@ -300,7 +300,7 @@ const ProfilePage = () => {
           toast({ title: "Uploading...", description: "Please wait..." });
 
           // 1. Upload File
-          const res = await axios.post('http://localhost:5000/api/auth/upload', formData, { 
+          const res = await axios.post('http://localhost:5002/api/auth/upload', formData, { 
             headers: { 'Content-Type': 'multipart/form-data' } 
           });
 
@@ -316,7 +316,7 @@ const ProfilePage = () => {
           const updatedDocs = [...currentDocs, newDoc];
 
           // 3. Save to Database
-          await axios.put('http://localhost:5000/api/auth/profile', {
+          await axios.put('http://localhost:5002/api/auth/profile', {
               userId: user?._id,
               documents: updatedDocs
           });
