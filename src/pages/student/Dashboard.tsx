@@ -47,7 +47,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     dispatch(fetchProfile());
-    dispatch(fetchApplications());
+    dispatch(fetchApplications(undefined));
     dispatch(fetchDrives());
   }, [dispatch]);
 
@@ -70,7 +70,7 @@ const Dashboard: React.FC = () => {
       
       // Refresh applications and drives when a new application is submitted
       if (data.title === 'Application Submitted') {
-        dispatch(fetchApplications());
+        dispatch(fetchApplications((profile as any)._id));
         dispatch(fetchDrives());
       }
     });
@@ -78,9 +78,10 @@ const Dashboard: React.FC = () => {
     // Listen for application status updates from admin
     socket.on('applicationStatusUpdate', (data) => {
       console.log('📝 Application status update:', data);
-      toast.info(`Your application status: ${data.status}`);
+      // react-hot-toast does not have `info`; use default toast or success
+      toast(`Your application status: ${data.status}`);
       // Refresh applications to get latest status
-      dispatch(fetchApplications());
+      dispatch(fetchApplications(undefined));
     });
 
     socket.on('connect', () => {
@@ -262,7 +263,7 @@ const Dashboard: React.FC = () => {
                     <span className="text-lg font-bold">{profileCompletion}%</span>
                   </div>
                 </div>
-                <Link to="/profile">
+                <Link to="/dashboard/profile">
                   <Button variant="secondary" className="whitespace-nowrap bg-white text-primary hover:bg-white/90 border-0">
                     Complete Now <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>

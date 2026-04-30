@@ -8,58 +8,71 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import PasswordField from '@/components/PasswordField';
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    department: '',
-    year: '',
-  });
+  name: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  department: '',
+  year: '',
+  image: null as File | null, // Store the actual file
+  linkedin: '',
+  github: '',
+});
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { register } = useAuth();
   const { toast } = useToast();
-
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Passwords don't match",
-        description: "Please make sure your passwords match.",
-        variant: "destructive",
-      });
-      return;
+  e.preventDefault();
+  
+  if (formData.password !== formData.confirmPassword) {
+    toast({ title: "Passwords don't match", variant: "destructive" });
+    return;
+  }
+
+  setIsLoading(true);
+
+  try {
+    let imageUrl = '';
+
+    // 1. Upload the image file to Cloudinary if it exists
+    if (formData.image) {
+      const uploadData = new FormData();
+      uploadData.append("file", formData.image);
+      // Use the name of the preset you just created in the screenshot
+      uploadData.append("upload_preset", "fcfupz7d"); 
+      uploadData.append("cloud_name", "dhh13cyat");
+
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/dhh13cyat/image/upload`,
+        { method: "POST", body: uploadData }
+      );
+      
+      const fileData = await response.json();
+      imageUrl = fileData.secure_url; // This is the final URL stored in DB
     }
 
-    setIsLoading(true);
-
+    // 2. Register the user with the Cloudinary URL
     const success = await register({
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-      department: formData.department,
-      year: formData.year,
+      ...formData,
+      image: imageUrl, // Backend now receives a URL string, not a file object
     });
 
     if (success) {
-      toast({
-        title: "Registration successful!",
-        description: "Welcome to Virtual TNP Portal.",
-      });
+      toast({ title: "Registration successful!" });
       navigate('/dashboard');
-    } else {
-      toast({
-        title: "Registration failed",
-        description: "Please try again.",
-        variant: "destructive",
-      });
     }
+  } catch (error) {
+    console.error("Upload error:", error);
+    toast({ title: "Image upload failed", variant: "destructive" });
+  } finally {
     setIsLoading(false);
-  };
+  }
+};
 
   const departments = [
     "Computer Science",
@@ -103,6 +116,61 @@ const Register: React.FC = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="flex flex-col items-center justify-center space-y-2 mb-4">
+              <Label htmlFor="image-upload" className="cursor-pointer">
+                <div className="w-24 h-24 rounded-full border-2 border-dashed border-primary flex items-center justify-center overflow-hidden bg-muted hover:opacity-80 transition-opacity">
+                  {formData.image ? (
+                    <img
+                      src={URL.createObjectURL(formData.image)}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center text-muted-foreground">
+                      <User className="w-8 h-8" />
+                      <span className="text-[10px]">Upload Photo</span>
+                    </div>
+                  )}
+                </div>
+              </Label>
+              <input
+                id="image-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => setFormData({ ...formData, image: e.target.files?.[0] || null })}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="linkedin">LinkedIn URL</Label>
+                <div className="relative">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-xs">in</div>
+                  <Input
+                    id="linkedin"
+                    placeholder="linkedin.com/in/..."
+                    value={formData.linkedin}
+                    onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
+                    className="pl-9 h-11 text-xs"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="github">GitHub URL</Label>
+                <div className="relative">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-xs">git</div>
+                  <Input
+                    id="github"
+                    placeholder="github.com/..."
+                    value={formData.github}
+                    onChange={(e) => setFormData({ ...formData, github: e.target.value })}
+                    className="pl-9 h-11 text-xs"
+                  />
+                </div>
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
               <div className="relative">
@@ -167,38 +235,20 @@ const Register: React.FC = () => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="pl-11 h-12"
-                  required
-                  minLength={6}
-                />
-              </div>
-            </div>
+            
+                                      <PasswordField 
+                id="password"
+                label="Password"
+                value={formData.password}
+                onChange={(val) => setFormData({ ...formData, password: val })}
+              />
 
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="••••••••"
-                  value={formData.confirmPassword}
-                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  className="pl-11 h-12"
-                  required
-                />
-              </div>
-            </div>
+              <PasswordField 
+                id="confirmPassword"
+                label="Confirm Password"
+                value={formData.confirmPassword}
+                onChange={(val) => setFormData({ ...formData, confirmPassword: val })}
+/>
 
             <Button
               type="submit"

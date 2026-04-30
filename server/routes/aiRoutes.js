@@ -4,6 +4,9 @@ const path = require('path');
 const router = express.Router();
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
+const DEFAULT_GROQ_MODEL = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+const FALLBACK_GROQ_MODEL = process.env.GROQ_FALLBACK_MODEL || 'llama-3.1-8b-instant';
+
 // Helper function to get Groq client with lazy initialization
 const getGroqClient = () => {
   const apiKey = process.env.GROQ_API_KEY;
@@ -14,6 +17,18 @@ const getGroqClient = () => {
     apiKey: apiKey,
     baseURL: "https://api.groq.com/openai/v1",
   });
+};
+
+const runChatCompletion = async (openai, payload, model = DEFAULT_GROQ_MODEL) => {
+  try {
+    return await openai.chat.completions.create({ ...payload, model });
+  } catch (err) {
+    if (err?.code === 'model_decommissioned' && model !== FALLBACK_GROQ_MODEL) {
+      console.warn(`⚠️ Model ${model} is decommissioned. Retrying with ${FALLBACK_GROQ_MODEL}.`);
+      return openai.chat.completions.create({ ...payload, model: FALLBACK_GROQ_MODEL });
+    }
+    throw err;
+  }
 };
 
 // --- 1. CHAT ENDPOINT ---
@@ -30,8 +45,7 @@ router.post('/chat', async (req, res) => {
         ...messages // <--- This spreads the entire history into the prompt
     ];
 
-    const completion = await openai.chat.completions.create({
-    model: "llama3-70b-8192", // Or "gpt-3.5-turbo" / "gemini-pro"
+    const completion = await runChatCompletion(openai, {
       messages: conversation,
       temperature: 0.7, // Lower temperature = less random / less repetition
     });
@@ -64,8 +78,7 @@ router.post('/quiz', async (req, res) => {
       }
     `;
 
-    const completion = await openai.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+    const completion = await runChatCompletion(openai, {
       messages: [{ role: "user", content: jsonPrompt }],
       temperature: 0.7,
       response_format: { type: "json_object" } // Force JSON mode

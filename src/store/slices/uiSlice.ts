@@ -16,7 +16,6 @@ interface UIState {
   unreadCount: number;
   activeModal: string | null;
   theme: 'light' | 'dark';
-  globalSearch: string; // Correctly typed
 }
 
 const initialState: UIState = {
@@ -26,7 +25,7 @@ const initialState: UIState = {
   unreadCount: 0,
   activeModal: null,
   theme: 'light',
-  globalSearch: '', // Only data here, no functions!
+  
 };
 
 const uiSlice = createSlice({
@@ -42,10 +41,7 @@ const uiSlice = createSlice({
     toggleSidebarCollapsed: (state) => {
       state.sidebarCollapsed = !state.sidebarCollapsed;
     },
-    // Search Reducer
-    setGlobalSearch: (state, action: PayloadAction<string>) => {
-      state.globalSearch = action.payload;
-    },
+    // Search Reducer removed (global search disabled)
     // Notification Reducers
     addNotification: (state, action: PayloadAction<Notification>) => {
       state.notifications.unshift(action.payload);
@@ -79,7 +75,6 @@ export const {
   toggleSidebar,
   setSidebarOpen,
   toggleSidebarCollapsed,
-  setGlobalSearch, // Exported once here
   addNotification,
   markNotificationRead,
   markAllNotificationsRead,

@@ -1,11 +1,35 @@
 
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const Drive = require('../models/Drive');
 const Application = require('../models/Application');
 
+const buildFallbackDashboardStats = () => ({
+  stats: {
+    totalStudents: 0,
+    companiesOnboarded: 0,
+    activeDrives: 0,
+    avgPackage: '₹0 LPA',
+    studentTrend: 0,
+    companyTrend: 0,
+    drivesTrend: 0,
+    packageTrend: 0,
+  },
+  placementTrend: [{ month: 'Jan', placed: 0 }],
+  departmentData: [{ name: 'No Data', value: 1, color: '#e2e8f0' }],
+  recentActivity: [],
+  upcomingDrives: [],
+});
+
 exports.getDashboardStats = async (req, res) => {
   try {
     console.log('📥 GET /api/admin/dashboard-stats - Fetching dashboard stats...');
+
+    if (mongoose.connection.readyState !== 1) {
+      console.warn('⚠️ MongoDB is not connected. Returning fallback dashboard stats.');
+      return res.json(buildFallbackDashboardStats());
+    }
+
     const now = new Date();
     const firstDayCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const firstDayLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -149,6 +173,6 @@ exports.getDashboardStats = async (req, res) => {
   } catch (error) {
     console.error("❌ Dashboard Stats Error:", error.message);
     console.error(error.stack);
-    res.status(500).json({ message: 'Server Error fetching stats', error: error.message });
+    res.json(buildFallbackDashboardStats());
   }
 };

@@ -134,7 +134,7 @@ const ApplicationsPage: React.FC = () => {
 
   // 3. Fetch Data
   useEffect(() => {
-    dispatch(fetchApplications());
+    dispatch(fetchApplications(undefined));
   }, [dispatch]);
 
   // 3.5 Setup Socket Listeners for Real-time Updates
@@ -152,14 +152,14 @@ const ApplicationsPage: React.FC = () => {
     socket.on('applicationStatusUpdate', (data) => {
       console.log('📝 Application status updated:', data);
       toast.success(`Application status updated to: ${data.status}`);
-      dispatch(fetchApplications());
+      dispatch(fetchApplications(undefined));
     });
 
     // Listen for new application confirmations
     socket.on('notification', (data) => {
       if (data.title === 'Application Submitted') {
         console.log('✅ New application submitted:', data);
-        dispatch(fetchApplications());
+        dispatch(fetchApplications(undefined));
       }
     });
 
@@ -261,7 +261,7 @@ const ApplicationsPage: React.FC = () => {
         <div className="p-4 bg-red-50 rounded-full"><AlertCircle className="w-10 h-10 text-red-500"/></div>
         <h2 className="text-xl font-bold">Failed to load applications</h2>
         <p className="text-muted-foreground">{error}</p>
-        <Button onClick={() => dispatch(fetchApplications())}><RefreshCw className="w-4 h-4 mr-2"/> Retry</Button>
+        <Button onClick={() => dispatch(fetchApplications(undefined))}><RefreshCw className="w-4 h-4 mr-2"/> Retry</Button>
       </div>
     );
   }
@@ -288,7 +288,7 @@ const ApplicationsPage: React.FC = () => {
               </p>
             </div>
             <div className="flex gap-3">
-              <Button variant="secondary" onClick={() => dispatch(fetchApplications())} className="bg-white/10 text-white hover:bg-white/20 border-0">
+              <Button variant="secondary" onClick={() => dispatch(fetchApplications(undefined))} className="bg-white/10 text-white hover:bg-white/20 border-0">
                 <RefreshCw className="w-4 h-4 mr-2" /> Refresh
               </Button>
               <Link to="/drives">
@@ -463,27 +463,58 @@ const ApplicationCard = ({ app, config }: any) => {
 }
 
 const ListView = ({ applications }: any) => (
-    <div className="w-full overflow-x-auto">
-        <table className="w-full min-w-[800px] text-left">
-            <thead className="bg-slate-50 border-b">
-                <tr><th className="p-4 pl-6 font-semibold text-sm">Company</th><th className="p-4 font-semibold text-sm">Role</th><th className="p-4 font-semibold text-sm">Package</th><th className="p-4 font-semibold text-sm">Status</th><th className="p-4 font-semibold text-sm text-right pr-6">Action</th></tr>
-            </thead>
-            <tbody className="divide-y">
-                {applications.map((app: any) => {
-                    const config = STATUS_CONFIG[app.status as string] || STATUS_CONFIG.applied;
-                    return (
-                        <tr key={app._id || app.id} className="hover:bg-slate-50 transition-colors">
-                            <td className="p-4 pl-6 font-medium">{app.companyName}</td>
-                            <td className="p-4 text-slate-600">{app.role}</td>
-                            <td className="p-4 font-medium">{app.package || 'N/A'}</td>
-                            <td className="p-4"><Badge variant="outline" className={cn("border-0", config.bg, config.color)}>{config.label}</Badge></td>
-                            <td className="p-4 text-right pr-6"><Link to={`/applications/${app._id || app.id}`}><Button variant="ghost" size="sm">View</Button></Link></td>
-                        </tr>
-                    )
-                })}
-            </tbody>
-        </table>
+  <div className="w-full">
+    {/* Desktop / Tablet Table */}
+    <div className="hidden md:block w-full overflow-x-auto">
+      <table className="w-full min-w-[800px] text-left">
+        <thead className="bg-slate-50 border-b">
+          <tr><th className="p-4 pl-6 font-semibold text-sm">Company</th><th className="p-4 font-semibold text-sm">Role</th><th className="p-4 font-semibold text-sm">Package</th><th className="p-4 font-semibold text-sm">Status</th><th className="p-4 font-semibold text-sm text-right pr-6">Action</th></tr>
+        </thead>
+        <tbody className="divide-y">
+          {applications.map((app: any) => {
+            const config = STATUS_CONFIG[app.status as string] || STATUS_CONFIG.applied;
+            return (
+              <tr key={app._id || app.id} className="hover:bg-slate-50 transition-colors">
+                <td className="p-4 pl-6 font-medium">{app.companyName}</td>
+                <td className="p-4 text-slate-600">{app.role}</td>
+                <td className="p-4 font-medium">{app.package || 'N/A'}</td>
+                <td className="p-4"><Badge variant="outline" className={cn("border-0", config.bg, config.color)}>{config.label}</Badge></td>
+                <td className="p-4 text-right pr-6"><Link to={`/applications/${app._id || app.id}`}><Button variant="ghost" size="sm">View</Button></Link></td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
     </div>
+
+    {/* Mobile List */}
+    <div className="md:hidden space-y-3">
+      {applications.map((app: any) => {
+        const config = STATUS_CONFIG[app.status as string] || STATUS_CONFIG.applied;
+        return (
+          <Link key={app._id || app.id} to={`/applications/${app._id || app.id}`}>
+            <Card className="border shadow-sm hover:shadow-md transition p-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-slate-50 border flex items-center justify-center p-1.5 shrink-0">
+                    {app.companyLogo ? <img src={app.companyLogo} className="w-full h-full object-contain" /> : <Building2 className="w-5 h-5 text-slate-400" />}
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="font-bold text-sm truncate">{app.companyName}</h4>
+                    <p className="text-xs text-slate-500 truncate">{app.role}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-medium">{app.package || 'N/A'}</div>
+                  <div className="text-xs mt-1"><Badge variant="secondary" className={cn(config.bg, config.color)}>{config.label}</Badge></div>
+                </div>
+              </div>
+            </Card>
+          </Link>
+        )
+      })}
+    </div>
+  </div>
 );
 
 const ApplicationsSkeleton = () => (

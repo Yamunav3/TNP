@@ -541,7 +541,7 @@ export const fetchProfile = createAsyncThunk('profile/fetch', async () => {
                     lastName: user.name ? user.name.split(' ')[1] : '',
                     email: user.email || 'student@example.com',
                     phone: user.phone || '9999999999',
-                    avatar: `https://ui-avatars.com/api/?name=${user.name || 'User'}&background=random`,
+                  avatar: user.image || `https://ui-avatars.com/api/?name=${user.name || 'User'}&background=random`,
                     role: user.headline || 'Student'
                 },
                 academicInfo: {

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import PasswordField from '@/components/PasswordField';
 
 const Login: React.FC = () => {
   const [role, setRole] = useState<'student' | 'admin'>('student');
@@ -171,20 +172,27 @@ const Login: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
+                <PasswordField 
                   id="password"
-                  type="password"
-                  placeholder="••••••••"
+                  label="Password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-11 h-12"
-                  required
+                  onChange={setPassword}
                 />
-              </div>
-            </div>
+               </div>
+                          
+            <div className="space-y-2">
+  <div className="flex items-center justify-between">
+    <Label htmlFor="password"></Label>
+    {/* Dynamic Forgot Password Link */}
+    <Link 
+      to="/forgot-password" 
+      className="text-sm font-medium text-primary hover:underline"
+    >
+      Forgot password?
+    </Link>
+  </div>
+
+</div>
 
             <Button
               type="submit"

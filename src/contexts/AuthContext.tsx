@@ -3,7 +3,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5002/api/auth';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5002';
+const API_URL = `${API_BASE_URL}/api/auth`;
 
 export interface User {
   _id: string;

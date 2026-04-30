@@ -7,10 +7,12 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Provider } from "react-redux";
 import { store } from "./store";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
-
+import { io } from 'socket.io-client';
 // --- PAGES: AUTH ---
 import Login from "./pages/authentication/Login";
 import Register from "./pages/authentication/Register";
+import ForgotPassword from "./pages/authentication/ForgotPassword";
+import ResetPassword from "./pages/authentication/ResetPassword";
 import NotFound from "./pages/NotFound";
 
 // --- LAYOUTS ---
@@ -26,6 +28,7 @@ import SchedulePage from "./pages/student/SchedulePage";
 import InterviewPrepPage from "./pages/student/InterviewPrepPage";
 import ProfilePage from "./pages/student/ProfilePage";
 import SettingsPage from "./pages/student/SettingsPage";
+import Resources from "./pages/student/Resources";
 
 // --- PAGES: ADMIN ---
 import AdminOverview from "./pages/admin/AdminOverview";
@@ -33,10 +36,25 @@ import Students from "./pages/admin/Students";
 import Companies from "./pages/admin/Companies";
 import Reports from "./pages/admin/Reports";
 import AdminSettings from "./pages/admin/Settings";
-
+import ManageResources from "./pages/admin/ManageResources";
 const queryClient = new QueryClient();
 
 // --- PROTECTED ROUTE WRAPPER ---
+
+// Typical path: src/context/SocketContext.tsx
+
+
+// You would replace the existing connection logic with your specific config:
+const socket = io('http://localhost:5002', {
+  query: {
+    userId: 'admin-static-id', 
+    role: 'admin'
+  },
+  transports: ['websocket'], 
+  reconnectionAttempts: 5
+});
+
+
 const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: 'student' | 'admin' }> = ({ children, role }) => {
   const { isAuthenticated, user } = useAuth();
 
@@ -63,6 +81,8 @@ const AppRoutes = () => {
       <Route path="/register" element={
         isAuthenticated ? <Navigate to="/dashboard" replace /> : <Register />
       } />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
       
       {/* --- STUDENT ROUTES (Protected) --- */}
       <Route path="/dashboard" element={
@@ -80,6 +100,7 @@ const AppRoutes = () => {
         <Route path="interview-prep" element={<InterviewPrepPage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="settings" element={<SettingsPage />} />
+        <Route path='resources' element={<Resources />} />
       </Route>
       
       {/* --- ADMIN ROUTES (Protected) --- */}
@@ -92,6 +113,7 @@ const AppRoutes = () => {
         <Route path="students" element={<Students />} />
         <Route path="companies" element={<Companies />} />
         <Route path="reports" element={<Reports />} />
+        <Route path="ManageResources" element={<ManageResources />} />
         <Route path="settings" element={<AdminSettings />} />
       </Route>
       
@@ -109,7 +131,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter>
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <AppRoutes />
           </BrowserRouter>
         </TooltipProvider>

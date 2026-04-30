@@ -24,6 +24,7 @@ const adminNavItems = [
   { name: 'Companies', href: '/admin/companies', icon: Building2 },
   { name: 'Reports', href: '/admin/reports', icon: FileText },
   { name: 'Settings', href: '/admin/settings', icon: Settings },
+  {name:'Resources',href:'/admin/ManageResources' ,icon:FileText}
 ];
 
 const AdminSidebar: React.FC = () => {

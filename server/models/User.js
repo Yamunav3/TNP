@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
+  image: { type: String }, // Stores the Cloudinary URL
+  linkedin: { type: String },
+  github: { type: String },
   password: { type: String, required: true },
   headline: { type: String, default: 'Student' },
   // Fields from Register.tsx
@@ -29,7 +32,8 @@ const userSchema = new mongoose.Schema({
     date: String,
     url: String
   }],
-  
+  resetPasswordToken: String,
+resetPasswordExpire: Date,
   createdAt: { type: Date, default: Date.now }
 });
 

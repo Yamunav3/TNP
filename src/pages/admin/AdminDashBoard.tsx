@@ -12,7 +12,7 @@ import { io } from 'socket.io-client'; // Import socket.io
 // Hooks & Contexts
 import { useAppSelector, useAppDispatch } from '@/hooks/useAppDispatch';
 import { useAuth } from '@/contexts/AuthContext';
-import { toggleSidebar, setGlobalSearch } from '@/store/slices/uiSlice';
+import { toggleSidebar } from '@/store/slices/uiSlice';
 import { addAdminNotification } from '@/store/slices/adminSlice'; // Action we will create
 import { useToast } from '@/hooks/use-toast';
 
@@ -35,7 +35,7 @@ const AdminDashboard: React.FC = () => {
   const { toast } = useToast();
   
   // Redux State
-  const { sidebarCollapsed, globalSearch } = useAppSelector((state) => state.ui);
+  const { sidebarCollapsed } = useAppSelector((state) => state.ui);
   // Get real notifications from Redux
   const { notifications } = useAppSelector((state) => state.admin || { notifications: [] });
 
@@ -84,15 +84,13 @@ const AdminDashboard: React.FC = () => {
       'students': 'Student Management',
       'drives': 'Recruitment Drives',
       'analytics': 'Placement Analytics',
+      'Resources':'Resources',
       'settings': 'System Settings'
     };
     return titleMap[path || ''] || (path ? path.charAt(0).toUpperCase() + path.slice(1) : 'Dashboard');
   };
 
   // --- 3. HANDLERS ---
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setGlobalSearch(e.target.value)); 
-  };
 
   const handleLogout = async () => {
     await logout();

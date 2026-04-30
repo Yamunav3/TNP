@@ -102,6 +102,8 @@ const DrivesPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchValue, dispatch]);
 
+  // (No global search sync — drive search is independent)
+
   // --- ELIGIBILITY LOGIC ---
   const checkEligibility = (driveCriteria: any) => {
     if (!user || !driveCriteria) return { isEligible: true, reasons: [] };

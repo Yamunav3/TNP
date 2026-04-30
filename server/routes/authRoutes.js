@@ -1,6 +1,8 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 const User = require('../models/User');
 const router = express.Router();
 const multer = require('multer');
@@ -28,7 +30,7 @@ const upload = multer({
 
 
 router.post('/register', async (req, res) => {
-  const { name, email, password, department, year } = req.body;
+  const { name, email, password, department, year, image, linkedin, github } = req.body;
 
   try {
     // 1. Check if user already exists
@@ -48,6 +50,9 @@ router.post('/register', async (req, res) => {
       password: hashedPassword,
       department,
       year,
+      image,
+      linkedin,
+      github,
       role: 'student' // Default role for registration page
     });
 
@@ -58,6 +63,11 @@ router.post('/register', async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        department: user.department,
+        year: user.year,
+        image: user.image,
+        linkedin: user.linkedin,
+        github: user.github,
         token: generateToken(user._id),
       });
     } else {
@@ -112,6 +122,11 @@ router.post('/login', async (req, res) => {
         year: user.year,
         cgpa: user.cgpa,
         skills: user.skills,
+        image: user.image,
+        linkedin: user.linkedin,
+        github: user.github,
+        phone: user.phone,
+        address: user.address,
         token: generateToken(user._id),
       });
     } else {
@@ -149,6 +164,9 @@ router.put('/profile', async (req, res) => {
         phone: user.phone,       // <---
         address: user.address,   // <---
         skills: user.skills,
+        image: user.image,
+        linkedin: user.linkedin,
+        github: user.github,
         token: req.headers.authorization?.split(' ')[1] // Keep existing token
       });
     } else {
@@ -183,6 +201,153 @@ router.post('/upload', upload.single('file'), (req, res) => {
   }
 });
 
+  const { registerUser } = require('../controllers/userControllers');
+
+// Define the registration route
+router.post('/register', registerUser);
+// @route   POST /api/auth/forgot-password
+// @desc    Send password reset email
+router.post('/forgot-password', async (req, res) => {
+  try {
+    console.log("📧 Forgot password request for:", req.body.email);
+
+    // 1. Check if user exists
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) {
+      console.log("❌ User not found:", req.body.email);
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    console.log("✅ User found:", user.email);
+
+    // 2. Generate random reset token
+    const resetToken = crypto.randomBytes(20).toString('hex');
+    console.log("🔑 Reset token generated:", resetToken.substring(0, 5) + "...");
+
+    // 3. Hash token and set to database field
+    user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 Minutes
+
+    await user.save();
+    console.log("💾 Token saved to database");
+
+    // 4. Send Email via Brevo SMTP (with fallback for testing)
+    const resetUrl = `http://localhost:8080/reset-password/${resetToken}`;
+    
+    try {
+      console.log("📨 Attempting to send email via Brevo...");
+      console.log("  Host:", process.env.EMAIL_HOST);
+      console.log("  Port:", process.env.EMAIL_PORT);
+      console.log("  User:", process.env.EMAIL_USER?.substring(0, 5) + "...");
+
+      const transporter = nodemailer.createTransport({
+        host: process.env.EMAIL_HOST || 'smtp-relay.brevo.com',
+        port: parseInt(process.env.EMAIL_PORT || '587'),
+        secure: false,
+        auth: {
+          user: process.env.EMAIL_USER || 'user@brevo.com',
+          pass: process.env.EMAIL_PASS || process.env.BREVO_API_KEY
+        }
+      });
+
+      await transporter.sendMail({
+        from: process.env.EMAIL_FROM || 'yamunav32006@gmail.com',
+        to: user.email,
+        subject: 'Password Reset Request - TNP Portal',
+        html: `
+          <h2>Password Reset Request</h2>
+          <p>You requested a password reset for your TNP Portal account.</p>
+          <p><a href="${resetUrl}" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a></p>
+          <p>This link will expire in 10 minutes.</p>
+          <p>If you didn't request this, please ignore this email.</p>
+        `
+      });
+      
+      console.log("✅ Email sent successfully to:", user.email);
+      res.status(200).json({ message: "Reset email sent successfully" });
+    } catch (emailErr) {
+      // If email fails, still save the token but return warning
+      console.warn("⚠️ Email send failed:", emailErr.message);
+      console.log("🔑 Reset token (for testing):", resetToken);
+      res.status(200).json({ 
+        message: "Reset link created. Email service unavailable - you can use test token if provided.",
+        _testToken: process.env.NODE_ENV === 'development' ? resetToken : undefined
+      });
+    }
+  } catch (err) {
+    console.error("❌ Forgot password error:", err);
+    console.error("   Stack trace:", err.stack);
+    res.status(500).json({ 
+      message: "Failed to process reset request. Please try again later.",
+      _debug: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  }
+});
+
+// @route   POST /api/auth/reset-password
+// @desc    Reset user password with token
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { token, password, confirmPassword } = req.body;
+
+    console.log("🔐 Reset password request received");
+    console.log("   Token:", token?.substring(0, 10) + "...");
+    console.log("   Password length:", password?.length);
+
+    if (!token || !password || !confirmPassword) {
+      console.log("❌ Missing required fields");
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    if (password !== confirmPassword) {
+      console.log("❌ Passwords don't match");
+      return res.status(400).json({ message: "Passwords don't match" });
+    }
+
+    // 1. Hash the token to compare with stored hash
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    console.log("🔑 Hashed token:", hashedToken.substring(0, 10) + "...");
+
+    // 2. Find user with matching reset token and token not expired
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpire: { $gt: Date.now() } // Token must not be expired
+    });
+
+    if (!user) {
+      console.log("❌ No user found with this token or token expired");
+      console.log("   Current time:", Date.now());
+      
+      // Debug: check if token exists at all (regardless of expiry)
+      const debugUser = await User.findOne({ resetPasswordToken: hashedToken });
+      if (debugUser) {
+        console.log("   Token exists but expired at:", debugUser.resetPasswordExpire);
+      }
+      
+      return res.status(400).json({ message: "Invalid or expired reset token" });
+    }
+
+    console.log("✅ User found:", user.email);
+
+    // 3. Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // 4. Update user password and clear reset token fields
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+    
+    console.log("✅ Password reset successfully for:", user.email);
+    res.status(200).json({ message: "Password reset successfully" });
+  } catch (err) {
+    console.error("❌ Reset password error:", err);
+    console.error("   Stack trace:", err.stack);
+    res.status(500).json({ message: "Failed to reset password" });
+  }
+});
 
 // Helper function to generate JWT
 const generateToken = (id) => {
