@@ -67,7 +67,7 @@ const AdminDashboard: React.FC = () => {
       toast({
         title: notification.title,
         description: notification.message,
-        className: "bg-white border-l-4 border-blue-500"
+        className: "bg-background border-l-4 border-primary"
       });
     });
 
@@ -84,7 +84,7 @@ const AdminDashboard: React.FC = () => {
       'students': 'Student Management',
       'drives': 'Recruitment Drives',
       'analytics': 'Placement Analytics',
-      'Resources':'Resources',
+      'manage-resources':'Resources',
       'settings': 'System Settings'
     };
     return titleMap[path || ''] || (path ? path.charAt(0).toUpperCase() + path.slice(1) : 'Dashboard');
@@ -94,15 +94,15 @@ const AdminDashboard: React.FC = () => {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/login', { replace: true });
+    navigate('/login/admin', { replace: true });
   };
 
-  const unreadCount = notifications.filter((n: any) => !n.read).length;
+  const unreadCount = notifications.filter((n: Record<string, any>) => !n.read).length;
 
   if (authLoading) return <div className="h-screen w-full flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
 
   return (
-    <div className="flex h-screen bg-slate-100 dark:bg-slate-950 overflow-hidden font-sans">
+      <div className="flex h-screen bg-muted/30 dark:bg-slate-950 overflow-hidden font-sans">
       <AdminSidebar />
 
       <motion.div 
@@ -111,7 +111,7 @@ const AdminDashboard: React.FC = () => {
         initial={false}
       >
         {/* --- HEADER --- */}
-        <header className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-20">
+        <header className="h-16 bg-background/80 backdrop-blur-md border-b border-border flex items-center justify-between px-6 sticky top-0 z-20">
           
           <div className="flex items-center gap-6 flex-1">
             <Button variant="ghost" size="icon" className="md:hidden" onClick={() => dispatch(toggleSidebar())}>
@@ -119,8 +119,8 @@ const AdminDashboard: React.FC = () => {
             </Button>
 
             <div className="hidden md:flex flex-col">
-              <h2 className="text-lg font-bold text-slate-800">{getPageTitle()}</h2>
-              <span className="text-xs text-slate-500">Welcome, {user?.name}</span>
+              <h2 className="text-lg font-bold text-foreground">{getPageTitle()}</h2>
+              <span className="text-xs text-muted-foreground">Welcome, {user?.name}</span>
             </div>
 
             {/* <div className={`relative w-full max-w-md hidden md:block transition-all ${isSearchFocused ? 'scale-105' : ''}`}>
@@ -141,7 +141,7 @@ const AdminDashboard: React.FC = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative">
-                  <Bell className="w-5 h-5 text-slate-500" />
+                  <Bell className="w-5 h-5 text-muted-foreground" />
                   {unreadCount > 0 && (
                     <span className="absolute top-2 right-2 h-2.5 w-2.5 bg-red-500 rounded-full animate-pulse" />
                   )}
@@ -152,12 +152,12 @@ const AdminDashboard: React.FC = () => {
                 <DropdownMenuSeparator />
                 <div className="max-h-[300px] overflow-y-auto">
                   {notifications.length === 0 ? (
-                    <div className="p-4 text-center text-sm text-slate-500">No new notifications</div>
+                    <div className="p-4 text-center text-sm text-muted-foreground">No new notifications</div>
                   ) : (
-                    notifications.map((n: any, i: number) => (
+                    notifications.map((n: Record<string, any>, i: number) => (
                       <DropdownMenuItem key={i} className="cursor-pointer p-3 flex flex-col items-start">
                          <span className="font-medium text-sm">{n.title}</span>
-                         <span className="text-xs text-slate-500">{n.message}</span>
+                         <span className="text-xs text-muted-foreground">{n.message}</span>
                       </DropdownMenuItem>
                     ))
                   )}
@@ -175,7 +175,7 @@ const AdminDashboard: React.FC = () => {
                   </Avatar>
                   <div className="text-left hidden sm:block">
                     <p className="text-sm font-medium leading-none">{user?.name}</p>
-                    <p className="text-xs text-slate-500 capitalize">{user?.role}</p>
+                    <p className="text-xs text-muted-foreground capitalize">{user?.role}</p>
                   </div>
                 </Button>
               </DropdownMenuTrigger>
@@ -189,7 +189,7 @@ const AdminDashboard: React.FC = () => {
         </header>
 
         {/* --- MAIN CONTENT --- */}
-        <main className="flex-1 overflow-y-auto p-6 scroll-smooth bg-slate-50/50 relative">
+        <main className="flex-1 overflow-y-auto p-6 scroll-smooth bg-muted/20 relative">
            <AnimatePresence mode="wait">
              <motion.div
                key={location.pathname}

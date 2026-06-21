@@ -82,3 +82,27 @@ exports.generateQuiz = async (req, res) => {
     res.status(500).json({ message: "Failed to generate quiz" });
   }
 };
+
+// --- 3. RESUME UPLOAD HANDLER ---
+exports.uploadResume = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const resumeUrl = req.file.path; // Cloudinary URL
+    const fileName = req.file.originalname;
+    const userId = req.user?.id || req.body.userId;
+
+    res.status(200).json({
+      success: true,
+      message: "Resume uploaded successfully",
+      resumeUrl,
+      fileName,
+      userId,
+    });
+  } catch (error) {
+    console.error("Resume Upload Error:", error);
+    res.status(500).json({ message: "Failed to upload resume", error: error.message });
+  }
+};

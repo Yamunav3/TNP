@@ -7,12 +7,14 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Provider } from "react-redux";
 import { store } from "./store";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import ProfileCompletionModal from "./components/ProfileCompletionModal";
 import { io } from 'socket.io-client';
 // --- PAGES: AUTH ---
 import Login from "./pages/authentication/Login";
 import Register from "./pages/authentication/Register";
 import ForgotPassword from "./pages/authentication/ForgotPassword";
 import ResetPassword from "./pages/authentication/ResetPassword";
+import { OAuthSuccess } from "./pages/OAuthSuccess";
 import NotFound from "./pages/NotFound";
 
 // --- LAYOUTS ---
@@ -29,6 +31,7 @@ import InterviewPrepPage from "./pages/student/InterviewPrepPage";
 import ProfilePage from "./pages/student/ProfilePage";
 import SettingsPage from "./pages/student/SettingsPage";
 import Resources from "./pages/student/Resources";
+import AlumniCorner from "./pages/student/AlumniCorner";
 
 // --- PAGES: ADMIN ---
 import AdminOverview from "./pages/admin/AdminOverview";
@@ -37,6 +40,8 @@ import Companies from "./pages/admin/Companies";
 import Reports from "./pages/admin/Reports";
 import AdminSettings from "./pages/admin/Settings";
 import ManageResources from "./pages/admin/ManageResources";
+import ManageAlumni from "./pages/admin/ManageAlumni";
+import AdminProfile from "./pages/admin/Profile";
 const queryClient = new QueryClient();
 
 // --- PROTECTED ROUTE WRAPPER ---
@@ -59,7 +64,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: 'student' | '
   const { isAuthenticated, user } = useAuth();
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login/student" replace />;
   }
   
   if (role && user?.role !== role) {
@@ -75,7 +80,11 @@ const AppRoutes = () => {
   return (
     <Routes>
       {/* --- AUTH ROUTES --- */}
-      <Route path="/login" element={
+      <Route path="/login" element={<Navigate to="/login/student" replace />} />
+      <Route path="/login/student" element={
+        isAuthenticated ? <Navigate to={user?.role === 'admin' ? '/admin' : '/dashboard'} replace /> : <Login />
+      } />
+      <Route path="/login/admin" element={
         isAuthenticated ? <Navigate to={user?.role === 'admin' ? '/admin' : '/dashboard'} replace /> : <Login />
       } />
       <Route path="/register" element={
@@ -83,6 +92,7 @@ const AppRoutes = () => {
       } />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
+      <Route path="/auth-success" element={<OAuthSuccess />} />
       
       {/* --- STUDENT ROUTES (Protected) --- */}
       <Route path="/dashboard" element={
@@ -101,6 +111,7 @@ const AppRoutes = () => {
         <Route path="profile" element={<ProfilePage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path='resources' element={<Resources />} />
+        <Route path='alumni' element={<AlumniCorner />} />
       </Route>
       
       {/* --- ADMIN ROUTES (Protected) --- */}
@@ -112,15 +123,29 @@ const AppRoutes = () => {
         <Route index element={<AdminOverview />} />
         <Route path="students" element={<Students />} />
         <Route path="companies" element={<Companies />} />
+        <Route path="alumni" element={<ManageAlumni />} />
         <Route path="reports" element={<Reports />} />
-        <Route path="ManageResources" element={<ManageResources />} />
+        <Route path="manage-resources" element={<ManageResources />} />
+        <Route path="ManageResources" element={<Navigate to="/admin/manage-resources" replace />} />
+        <Route path="profile" element={<AdminProfile />} />
         <Route path="settings" element={<AdminSettings />} />
       </Route>
       
       {/* --- DEFAULT REDIRECTS --- */}
-      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/" element={<Navigate to="/login/student" replace />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
+  );
+};
+
+const AppContent = () => {
+  const { isAuthenticated, user } = useAuth();
+  
+  return (
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      {isAuthenticated && user?.role === 'student' && <ProfileCompletionModal />}
+      <AppRoutes />
+    </BrowserRouter>
   );
 };
 
@@ -131,9 +156,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-            <AppRoutes />
-          </BrowserRouter>
+          <AppContent />
         </TooltipProvider>
       </AuthProvider>
     </QueryClientProvider>

@@ -23,7 +23,7 @@ const ForgotPassword = () => {
       
       // Redirect to login after 2 seconds
       setTimeout(() => {
-        navigate('/login');
+        navigate('/login/student');
       }, 2000);
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Something went wrong");
@@ -45,7 +45,7 @@ const ForgotPassword = () => {
             <p className="text-sm text-muted-foreground mt-4">Redirecting to login in a moment...</p>
           </div>
           <Button 
-            onClick={() => navigate('/login')} 
+            onClick={() => navigate('/login/student')} 
             className="w-full h-12"
           >
             Go to Login Now
@@ -80,7 +80,7 @@ const ForgotPassword = () => {
           </Button>
         </form>
 
-        <Link to="/login" className="flex items-center justify-center gap-2 text-sm text-primary hover:underline">
+        <Link to="/login/student" className="flex items-center justify-center gap-2 text-sm text-primary hover:underline">
           <ArrowLeft className="w-4 h-4" /> Back to Login
         </Link>
       </div>

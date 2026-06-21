@@ -51,10 +51,10 @@ const SettingsPage = () => {
       <div className="grid gap-8">
         
         {/* --- 1. Security & Login --- */}
-        <Card className="border-t-4 border-t-violet-600 shadow-sm">
+        <Card className="border-t-4 border-t-primary shadow-sm">
           <CardHeader>
             <div className="flex items-center gap-3 mb-1">
-                <div className="p-2 bg-violet-100 rounded-lg text-violet-600">
+                <div className="p-2 bg-primary/10 rounded-lg text-primary">
                     <Lock className="w-5 h-5" />
                 </div>
                 <div>
@@ -81,7 +81,7 @@ const SettingsPage = () => {
                 </div>
             </div>
             <div className="flex justify-end">
-                <Button className="bg-violet-600 hover:bg-violet-700">Update Password</Button>
+                <Button className="bg-primary hover:bg-primary/90">Update Password</Button>
             </div>
             <Separator />
             <div className="flex items-center justify-between">
@@ -90,7 +90,7 @@ const SettingsPage = () => {
                         <Label className="text-base font-medium">Two-Factor Authentication</Label>
                         {security.twoFactor && <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">Enabled</Badge>}
                     </div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Add an extra layer of security to your account.</p>
+                    <p className="text-sm text-muted-foreground">Add an extra layer of security to your account.</p>
                 </div>
                 <Switch 
                     checked={security.twoFactor} 
@@ -101,10 +101,10 @@ const SettingsPage = () => {
         </Card>
 
         {/* --- 2. Notifications --- */}
-        <Card className="border-t-4 border-t-indigo-500 shadow-sm">
+        <Card className="border-t-4 border-t-accent shadow-sm">
           <CardHeader>
             <div className="flex items-center gap-3 mb-1">
-                <div className="p-2 bg-indigo-100 rounded-lg text-indigo-600">
+                <div className="p-2 bg-accent/15 rounded-lg text-accent-foreground">
                     <Bell className="w-5 h-5" />
                 </div>
                 <div>
@@ -121,7 +121,7 @@ const SettingsPage = () => {
                         <Label className="text-base font-medium">Email Notifications</Label>
                         <Switch checked={notifications.email} onCheckedChange={() => handleNotifyChange('email')} />
                     </div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Receive daily summaries and important alerts.</p>
+                    <p className="text-sm text-muted-foreground">Receive daily summaries and important alerts.</p>
                 </div>
             </div>
             <Separator />
@@ -132,7 +132,7 @@ const SettingsPage = () => {
                         <Label className="text-base font-medium">Job & Internship Alerts</Label>
                         <Switch checked={notifications.jobs} onCheckedChange={() => handleNotifyChange('jobs')} />
                     </div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Get notified immediately when new roles match your profile.</p>
+                    <p className="text-sm text-muted-foreground">Get notified immediately when new roles match your profile.</p>
                 </div>
             </div>
             <Separator />
@@ -143,7 +143,7 @@ const SettingsPage = () => {
                         <Label className="text-base font-medium">Push Notifications</Label>
                         <Switch checked={notifications.push} onCheckedChange={() => handleNotifyChange('push')} />
                     </div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Receive notifications on your mobile device.</p>
+                    <p className="text-sm text-muted-foreground">Receive notifications on your mobile device.</p>
                 </div>
             </div>
           </CardContent>

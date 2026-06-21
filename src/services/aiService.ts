@@ -84,6 +84,14 @@ export interface QuizQuestion {
   options: string[];
   correctIndex: number;
   explanation: string;
+  difficulty?: 'beginner' | 'medium' | 'hard';
+  isHighFrequency?: boolean;
+}
+
+interface DynamicQuizRequest {
+  topic: string;
+  difficulty: 'Beginner' | 'Medium' | 'Hard';
+  userId?: string;
 }
 
 interface InterviewContext {
@@ -91,6 +99,8 @@ interface InterviewContext {
   candidateName: string;
   candidateSkills: string[];
   interviewerPersona: { name: string; role: string; focus: string };
+  jobDescription?: string;
+  resumeUrl?: string;
 }
 
 // --- 1. CHAT INTERVIEWER LOGIC ---
@@ -99,17 +109,21 @@ export const getAIResponse = async ({
   messages, 
   candidateName, 
   candidateSkills, 
-  interviewerPersona 
+  interviewerPersona,
+  jobDescription,
+  resumeUrl
 }: InterviewContext) => {
   try {
     // Construct a smarter System Prompt
-    const systemPrompt = `
+    let systemPrompt = `
       You are ${interviewerPersona.name}, a professional ${interviewerPersona.role}.
       You are interviewing ${candidateName}.
       
       CONTEXT:
       - Role Focus: ${interviewerPersona.focus}
       - Candidate Skills: ${candidateSkills.join(", ")}
+      ${jobDescription ? `- Job Description: ${jobDescription}` : ''}
+      ${resumeUrl ? `- Candidate Resume: ${resumeUrl}` : ''}
       
       INSTRUCTIONS:
       1. Review the entire chat history below.
@@ -118,6 +132,7 @@ export const getAIResponse = async ({
       4. If the answer was wrong, briefly correct them before moving on.
       5. Keep responses short (max 2-3 sentences).
       6. Ask exactly ONE question at a time.
+      ${resumeUrl ? '7. Reference the candidate\'s resume experience when relevant.' : ''}
     `;
 
     // Send to backend
@@ -154,4 +169,18 @@ export const generateQuizQuestion = async (
       explanation: "Please check if your backend server is running and the API Key is valid."
     };
   }
+};
+
+export const getDynamicQuizQuestion = async ({ topic, difficulty, userId }: DynamicQuizRequest): Promise<QuizQuestion> => {
+  const level = difficulty.toLowerCase();
+
+  const response = await axios.post(`${API_URL}/quiz-question`, {
+    topic,
+    category: topic,
+    difficulty: level,
+    level,
+    userId,
+  });
+
+  return response.data;
 };

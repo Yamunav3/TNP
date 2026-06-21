@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { io } from 'socket.io-client';
@@ -52,7 +51,7 @@ const itemVariants = {
 
 const DrivesPage: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { user } = useAuth();
+  const { user, isProfileComplete } = useAuth();
 
   const { filteredDrives, filters, drives, loading } = useAppSelector((state) => state.drives);
   const { profile } = useAppSelector((state) => state.profile);
@@ -105,40 +104,46 @@ const DrivesPage: React.FC = () => {
   // (No global search sync — drive search is independent)
 
   // --- ELIGIBILITY LOGIC ---
-  const checkEligibility = (driveCriteria: any) => {
-    if (!user || !driveCriteria) return { isEligible: true, reasons: [] };
+    const checkEligibility = (eligibility: Record<string, any>) => {
     const reasons = [];
     
-    if ((user.cgpa || 0) < driveCriteria.minCGPA) {
-        reasons.push(`Required CGPA: ${driveCriteria.minCGPA} (Yours: ${user.cgpa})`);
+    // First check if profile is complete
+    if (!isProfileComplete()) {
+        reasons.push("Profile is incomplete. Complete your profile first!");
+        return { isEligible: false, reasons };
     }
     
-    if ((user.backlogs || 0) > driveCriteria.maxBacklogs) {
-        reasons.push(`Max Backlogs Allowed: ${driveCriteria.maxBacklogs} (Yours: ${user.backlogs})`);
+    if (!user || !eligibility) return { isEligible: true, reasons: [] };
+    
+    if ((user.cgpa || 0) < eligibility.minCGPA) {
+        reasons.push(`Required CGPA: ${eligibility.minCGPA} (Yours: ${user.cgpa})`);
+    }
+    
+    if ((user.backlogs || 0) > eligibility.maxBacklogs) {
+        reasons.push(`Max Backlogs Allowed: ${eligibility.maxBacklogs} (Yours: ${user.backlogs})`);
     }
 
     return { isEligible: reasons.length === 0, reasons };
   };
 
   // --- HANDLERS ---
-  // --- UPDATED HANDLER ---
-  const handleApply = async (driveId: string, drive: any) => {
-    // 1. Eligibility Check
-    const { isEligible, reasons } = checkEligibility(drive.eligibility);
-    if (!isEligible) {
-      toast({ variant: "destructive", title: "Not Eligible", description: `Issues: ${reasons.join(', ')}` });
-      return;
-    }
+  const handleApply = async (driveId: string, drive: Record<string, any>) => {
+    // 1. Eligibility Check
+    const { isEligible, reasons } = checkEligibility(drive.eligibility);
+    if (!isEligible) {
+      toast({ variant: "destructive", title: "Not Eligible", description: `Issues: ${reasons.join(', ')}` });
+      return;
+    }
 
     // 2. Auth Check
-    if (!user) {
-        toast({ title: "Error", description: "You must be logged in to apply.", variant: "destructive" });
-        return;
-    }
+    if (!user) {
+        toast({ title: "Error", description: "You must be logged in to apply.", variant: "destructive" });
+        return;
+    }
 
-    setApplyingId(driveId);
+    setApplyingId(driveId);
 
-    try {
+    try {
         // --- CRITICAL FIX: CONSTRUCT THE PAYLOAD ---
         // We must extract the IDs explicitly so the backend understands who is applying.
         const applicationPayload = {
@@ -149,35 +154,36 @@ const DrivesPage: React.FC = () => {
 
         console.log("📤 Sending Application:", applicationPayload); // Debug Log
 
-        // 3. Submit the constructed payload (NOT the raw drive object)
-        await dispatch(submitApplication(applicationPayload)).unwrap();
+        // 3. Submit the constructed payload (NOT the raw drive object)
+        await dispatch(submitApplication(applicationPayload)).unwrap();
 
-        // 4. Update UI
-        dispatch(applyToDrive(driveId));
+        // 4. Update UI
+        dispatch(applyToDrive(driveId));
 
-        if (drive.applicationLink && drive.applicationLink.startsWith('http')) {
-            toast({ 
-                title: "Application Recorded", 
-                description: "Opening external application form..." 
-            });
-            setTimeout(() => window.open(drive.applicationLink, '_blank'), 1000);
-        } else {
-            toast({ 
-                title: "Applied Successfully! 🎉", 
-                description: `You have successfully applied for ${drive.role} at ${drive.companyName}.` 
-            });
-        }
-    } catch (error: any) {
-        console.error("❌ Application Failed:", error);
-        toast({ 
-            title: "Application Failed", 
-            description: error || "Could not submit application. Please try again.", 
-            variant: "destructive" 
-        });
-    } finally {
-        setApplyingId(null);
-    }
-  };
+        if (drive.applicationLink && drive.applicationLink.startsWith('http')) {
+            toast({ 
+                title: "Application Recorded", 
+                description: "Opening external application form..." 
+            });
+            setTimeout(() => window.open(drive.applicationLink, '_blank'), 1000);
+        } else {
+            toast({ 
+                title: "Applied Successfully! 🎉", 
+                description: `You have successfully applied for ${drive.role} at ${drive.companyName}.` 
+            });
+        }
+    } catch (error: unknown) {
+      console.error("❌ Application Failed:", error);
+      const msg = error instanceof Error ? error.message : String(error);
+      toast({
+        title: "Application Failed",
+        description: msg || "Could not submit application. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setApplyingId(null);
+    }
+  };
 
   const toggleSaveDrive = (id: string) => {
     if (savedDrives.includes(id)) {
@@ -199,6 +205,39 @@ const DrivesPage: React.FC = () => {
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6 pb-10">
+      {/* Profile Incompletion Warning */}
+      <AnimatePresence>
+        {!isProfileComplete() && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200 dark:border-amber-900 rounded-2xl p-6 shadow-lg"
+          >
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+              <div className="p-3 bg-amber-100 dark:bg-amber-900/40 rounded-xl">
+                <AlertCircle className="w-8 h-8 text-amber-600 dark:text-amber-400" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-amber-900 dark:text-amber-100 mb-1">
+                  Profile Incomplete
+                </h3>
+                <p className="text-amber-700 dark:text-amber-300 mb-0">
+                  You need to complete your profile to be eligible for any placement drives. Please fill in your academic details and contact information!
+                </p>
+              </div>
+              <div className="w-full md:w-auto">
+                <Button
+                  className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white shadow-md"
+                  onClick={() => window.location.href = '/dashboard/profile'}
+                >
+                  Complete Profile Now
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       {/* Header */}
       <motion.div variants={itemVariants} className="flex justify-between items-end">

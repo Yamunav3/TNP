@@ -6,7 +6,10 @@ const userSchema = new mongoose.Schema({
   image: { type: String }, // Stores the Cloudinary URL
   linkedin: { type: String },
   github: { type: String },
-  password: { type: String, required: true },
+  phone: { type: String },
+  address: { type: String },
+  resumeUrl: { type: String },
+  password: { type: String },
   headline: { type: String, default: 'Student' },
   // Fields from Register.tsx
   department: { type: String }, // e.g., "Computer Science"
@@ -14,6 +17,15 @@ const userSchema = new mongoose.Schema({
   
   // Role handling (Login.tsx has Student/Admin toggle)
   role: { type: String, enum: ['student', 'admin'], default: 'student' },
+  
+  // OAuth fields
+  oauth: [{
+    provider: { type: String, enum: ['google', 'github'] },
+    oauthId: { type: String },
+    accessToken: { type: String },
+    refreshToken: { type: String },
+    expiresAt: { type: Date }
+  }],
   
   // Additional profile fields (can be updated later)
   cgpa: { type: Number, default: 0 },

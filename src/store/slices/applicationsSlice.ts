@@ -52,9 +52,13 @@ export const fetchApplications = createAsyncThunk(
       const response = await axios.get(`${API_URL}/my-applications`, config);
       // Extract the applications array from the response
       return response.data.applications || []; 
-    } catch (error: any) {
-      console.error("❌ Failed to fetch applications:", error.response?.data);
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch');
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("❌ Failed to fetch applications:", error.response?.data);
+        return rejectWithValue(error.response?.data?.message || 'Failed to fetch');
+      }
+      console.error("❌ Failed to fetch applications:", error);
+      return rejectWithValue('Failed to fetch');
     }
 });
 
@@ -86,10 +90,13 @@ export const submitApplication = createAsyncThunk(
       
       return response.data; 
 
-    } catch (error: any) {
-      console.error("❌ Apply Error:", error.response?.data);
-      // Return the specific message from the backend (e.g., "Already applied")
-      return rejectWithValue(error.response?.data?.message || 'Failed to apply');
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("❌ Apply Error:", error.response?.data);
+        return rejectWithValue(error.response?.data?.message || 'Failed to apply');
+      }
+      console.error("❌ Apply Error:", error);
+      return rejectWithValue('Failed to apply');
     }
   }
 );

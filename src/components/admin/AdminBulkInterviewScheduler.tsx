@@ -72,16 +72,6 @@ const AdminBulkInterviewScheduler: React.FC = () => {
     description: ''
   });
 
-  useEffect(() => {
-    fetchDrives();
-  }, []);
-
-  useEffect(() => {
-    if (formData.driveId) {
-      fetchStudentsForDrive(formData.driveId);
-    }
-  }, [formData.driveId]);
-
   const fetchDrives = async () => {
     try {
       setLoading(true);
@@ -108,6 +98,10 @@ const AdminBulkInterviewScheduler: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    fetchDrives();
+  }, []);
+
   const fetchStudentsForDrive = async (driveId: string) => {
     try {
       const token = localStorage.getItem('token');
@@ -120,7 +114,7 @@ const AdminBulkInterviewScheduler: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         // Map applications to students
-        const studentsList = data.applications?.map((app: any) => ({
+        const studentsList = data.applications?.map((app: Record<string, any>) => ({
           _id: app.studentId._id,
           name: app.studentId.name,
           email: app.studentId.email,
@@ -169,7 +163,7 @@ const AdminBulkInterviewScheduler: React.FC = () => {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!formData.driveId || formData.studentIds.length === 0) {

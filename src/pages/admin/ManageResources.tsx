@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 
 const ManageResources = () => {
   // --- States ---
-  const [resources, setResources] = useState<any[]>([]);
+  const [resources, setResources] = useState<Record<string, any>[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);

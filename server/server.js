@@ -7,6 +7,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
+const session = require('express-session');
+const passport = require('passport');
 
 // 1. Config & App Setup
 dotenv.config({ path: path.join(__dirname, '.env') });
@@ -28,8 +30,29 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json()); 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// 3. Database Connection
+// 3. Session Middleware (Required for Passport.js)
+app.use(
+  session({
+    secret: process.env.JWT_SECRET || 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { 
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24, // 24 hours
+      sameSite: 'lax'
+    }
+  })
+);
+
+// 4. Passport Middleware
+require('./config/passport');
+app.use(passport.initialize());
+app.use(passport.session());
+
+// 5. Database Connection
 const connectDB = require('./config/db');
 connectDB();
 
@@ -101,6 +124,7 @@ app.set('io', io);
 
 // 5. Routes
 app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/auth', require('./routes/oauthRoutes')); // Add OAuth routes
 app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/drives', require('./routes/driveRoutes')); 
 app.use('/api/applications', require('./routes/applicationRoutes'));
@@ -109,6 +133,8 @@ app.use('/api/test', require('./routes/testEmailRoutes'));
 app.use('/api/ai', require('./routes/aiRoutes')); 
 // Add this near your other routes
 app.use('/api/resources', require('./routes/resourceRoutes'));
+app.use('/api/interview-experiences', require('./routes/interviewExperienceRoutes'));
+app.use('/api/alumni', require('./routes/alumniRoutes'));
 // 6. Start Server
 const basePort = Number(process.env.PORT || 5002);
 

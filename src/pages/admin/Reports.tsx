@@ -22,7 +22,7 @@ const Reports: React.FC = () => {
 
   // Safely access 'jobs' if it exists in admin slice, otherwise default to empty array
   // This prevents crashes since you mentioned you don't have a jobSlice yet
-  const jobs = (useAppSelector((state) => state.admin) as any).jobs || [];
+  const jobs = (useAppSelector((state) => state.admin) as { jobs: Record<string, any>[] }).jobs || [];
 
   // 2. FETCH REAL DATA ON MOUNT
   useEffect(() => {
@@ -32,7 +32,7 @@ const Reports: React.FC = () => {
   }, [dispatch]);
 
   // --- UTILITY: Download CSV ---
-  const downloadCSV = (data: any[], filename: string) => {
+  const downloadCSV = (data: Record<string, any>[], filename: string) => {
     if (!data || data.length === 0) {
       toast({ title: "No Data", description: "No records found for this report.", variant: "destructive" });
       return;
@@ -67,11 +67,11 @@ const Reports: React.FC = () => {
     const data = students.map(s => ({
       Name: s.name,
       Email: s.email,
-      Phone: (s as any).phone || 'N/A', // Handling optional fields safely
+      Phone: (s as Record<string, any>).phone || 'N/A', // Handling optional fields safely
       Department: s.department,
       Year: s.year,
       CGPA: s.cgpa,
-      Backlogs: (s as any).backlogs || 0,
+      Backlogs: (s as Record<string, any>).backlogs || 0,
       Status: s.placedCompany ? 'Placed' : 'Unplaced'
     }));
     downloadCSV(data, `Total_Students_${new Date().toISOString().split('T')[0]}.csv`);
@@ -79,7 +79,7 @@ const Reports: React.FC = () => {
 
   const generateDeptWiseReport = () => {
     // Calculates real-time statistics from the 'students' array
-    const stats: any = {};
+    const stats: Record<string, any> = {};
     students.forEach(s => {
       const dept = s.department || 'Unknown';
       if(!stats[dept]) stats[dept] = { Total: 0, Placed: 0, Unplaced: 0 };
@@ -97,11 +97,11 @@ const Reports: React.FC = () => {
 
   const generateBacklogReport = () => {
       const data = students
-        .filter(s => ((s as any).backlogs || 0) > 0)
+        .filter(s => ((s as Record<string, any>).backlogs || 0) > 0)
         .map(s => ({
             Name: s.name,
             Department: s.department,
-            Backlogs: (s as any).backlogs,
+            Backlogs: (s as Record<string, any>).backlogs,
             CGPA: s.cgpa
         }));
       downloadCSV(data, 'Students_With_Backlogs.csv');
@@ -117,14 +117,14 @@ const Reports: React.FC = () => {
         Name: s.name,
         Department: s.department,
         Company: s.placedCompany,
-        Designation: (s as any).designation || 'Trainee',
-        Package: (s as any).salary || 'N/A'
+        Designation: (s as Record<string, any>).designation || 'Trainee',
+        Package: (s as Record<string, any>).salary || 'N/A'
       }));
     downloadCSV(data, `Placed_Students_List.csv`);
   };
 
   const generateCompanyWiseStats = () => {
-    const stats: any = {};
+    const stats: Record<string, any> = {};
     students.filter(s => s.placedCompany).forEach(s => {
       const comp = s.placedCompany || 'Unknown';
       if(!stats[comp]) stats[comp] = { Count: 0, Depts: new Set() };
@@ -182,7 +182,7 @@ const Reports: React.FC = () => {
   // --- UI COMPONENTS ---
   const ReportCard = ({ title, desc, icon: Icon, onClick, color }: any) => (
     <motion.div whileHover={{ y: -3 }} onClick={onClick} className="cursor-pointer h-full">
-      <Card className="hover:border-indigo-500 transition-colors h-full flex flex-col justify-between">
+      <Card className="hover:border-primary transition-colors h-full flex flex-col justify-between">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">{title}</CardTitle>
           <Icon className={`h-4 w-4 ${color}`} />
@@ -231,7 +231,7 @@ const Reports: React.FC = () => {
               title="Master Database" 
               desc="Export all registered students." 
               icon={Users} 
-              color="text-blue-500"
+              color="text-primary"
               onClick={generateTotalStudentsReport}
             />
             <ReportCard 
@@ -288,7 +288,7 @@ const Reports: React.FC = () => {
               title="Drive Summary" 
               desc="Recruitment drives status." 
               icon={Briefcase} 
-              color="text-blue-600"
+              color="text-primary"
               onClick={generateDriveReport}
             />
             <ReportCard 

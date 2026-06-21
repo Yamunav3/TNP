@@ -10,7 +10,6 @@ const path = require('path');
 
 
 
-
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/'); // Files will be saved in server/uploads
@@ -121,12 +120,15 @@ router.post('/login', async (req, res) => {
         department: user.department,
         year: user.year,
         cgpa: user.cgpa,
+        backlogs: user.backlogs,
         skills: user.skills,
         image: user.image,
+        headline: user.headline,
         linkedin: user.linkedin,
         github: user.github,
         phone: user.phone,
         address: user.address,
+        resumeUrl: user.resumeUrl,
         token: generateToken(user._id),
       });
     } else {
@@ -167,11 +169,49 @@ router.put('/profile', async (req, res) => {
         image: user.image,
         linkedin: user.linkedin,
         github: user.github,
+        headline: user.headline,
+        resumeUrl: user.resumeUrl,
         token: req.headers.authorization?.split(' ')[1] // Keep existing token
       });
     } else {
       res.status(404).json({ message: 'User not found' });
     }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// @route   GET /api/auth/profile/:userId
+// @desc    Fetch the persisted profile for a user
+router.get('/profile/:userId', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId).lean();
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      department: user.department,
+      year: user.year,
+      cgpa: user.cgpa,
+      backlogs: user.backlogs,
+      phone: user.phone,
+      address: user.address,
+      headline: user.headline,
+      skills: user.skills || [],
+      image: user.image,
+      linkedin: user.linkedin,
+      github: user.github,
+      certs: user.certs || [],
+      documents: user.documents || [],
+      resumeUrl: user.resumeUrl || '',
+      createdAt: user.createdAt,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -187,9 +227,8 @@ router.post('/upload', upload.single('file'), (req, res) => {
       return res.status(400).json({ message: 'No file uploaded' });
     }
     
-    // --- FIX 3: Construct the Full URL ---
-    // Ensure this matches your server port (5000)
-    const fileUrl = `http://localhost:5002/uploads/${req.file.filename}`;
+    // Serve the uploaded file from the backend origin so the frontend can open it directly.
+    const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
     
     res.json({ 
       message: 'File uploaded successfully',

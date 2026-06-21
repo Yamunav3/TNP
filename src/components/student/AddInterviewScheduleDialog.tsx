@@ -58,12 +58,6 @@ const AddInterviewScheduleDialog: React.FC<AddInterviewScheduleDialogProps> = ({
     description: ''
   });
 
-  useEffect(() => {
-    if (open) {
-      fetchApplications();
-    }
-  }, [open]);
-
   const fetchApplications = async () => {
     try {
       setLoadingApps(true);
@@ -76,7 +70,7 @@ const AddInterviewScheduleDialog: React.FC<AddInterviewScheduleDialogProps> = ({
 
       if (response.ok) {
         const data = await response.json();
-        setApplications(data.applications || []);
+        setApplications(data);
       }
     } catch (error) {
       console.error('Error fetching applications:', error);
@@ -89,6 +83,12 @@ const AddInterviewScheduleDialog: React.FC<AddInterviewScheduleDialogProps> = ({
       setLoadingApps(false);
     }
   };
+
+  useEffect(() => {
+    if (open) {
+      fetchApplications();
+    }
+  }, [open]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -246,11 +246,11 @@ const AddInterviewScheduleDialog: React.FC<AddInterviewScheduleDialogProps> = ({
                           </div>
                           <div className="text-xs">
                             <span className={`px-2 py-1 rounded-full ${
-                              app.status === 'interview' ? 'bg-blue-100 text-blue-800' :
+                              app.status === 'interview' ? 'bg-primary/10 text-primary' :
                               app.status === 'selected' ? 'bg-green-100 text-green-800' :
                               app.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                              app.status === 'shortlisted' ? 'bg-purple-100 text-purple-800' :
-                              'bg-gray-100 text-gray-800'
+                              app.status === 'shortlisted' ? 'bg-accent/15 text-accent-foreground' :
+                              'bg-muted text-muted-foreground'
                             }`}>
                               {app.status}
                             </span>
@@ -270,7 +270,7 @@ const AddInterviewScheduleDialog: React.FC<AddInterviewScheduleDialogProps> = ({
 
           {/* Selected Application Preview */}
           {formData.applicationId && applications.length > 0 && (
-            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="p-3 bg-primary/5 border border-primary/10 rounded-lg">
               {(() => {
                 const selectedApp = applications.find(a => a._id === formData.applicationId);
                 if (!selectedApp) return null;

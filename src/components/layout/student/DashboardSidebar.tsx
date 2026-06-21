@@ -15,6 +15,7 @@ import {
   BarChart,
   LogOut,
   FileText,
+  Users,
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/hooks/useAppDispatch';
 import { toggleSidebarCollapsed, setSidebarOpen } from '@/store/slices/uiSlice';
@@ -29,6 +30,7 @@ const mainNavigation = [
   { name: 'Schedule', href: '/dashboard/schedule', icon: Calendar },
   { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
   { name: 'Interview Prep', href: '/dashboard/interview-prep', icon: BarChart },
+  { name: 'Alumni Corner', href: '/dashboard/alumni', icon: Users },
   { name: 'Resources', href: '/dashboard/resources', icon: FileText }
 ];
 
@@ -48,7 +50,7 @@ const DashboardSidebar: React.FC = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/login');
+      navigate('/login/student');
     } catch (error) {
       console.error("Failed to log out", error);
     }
@@ -76,7 +78,7 @@ const DashboardSidebar: React.FC = () => {
           >
             <div className="flex items-center justify-between h-16 px-4 border-b border-slate-800">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-violet-600 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
                   <GraduationCap className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -107,7 +109,7 @@ const DashboardSidebar: React.FC = () => {
                         className={cn(
                           "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
                           "hover:bg-slate-800 group text-slate-400 hover:text-white",
-                          isActive && "bg-violet-600 text-white hover:bg-violet-700 shadow-md"
+                          isActive && "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md"
                         )}
                         onClick={() => dispatch(setSidebarOpen(false))}
                       >
@@ -157,7 +159,7 @@ const DashboardSidebar: React.FC = () => {
                 className="flex items-center gap-3"
               >
                 {/* Violet Accent for Student */}
-                <div className="w-9 h-9 rounded-lg bg-violet-600 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
                   <GraduationCap className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -168,7 +170,7 @@ const DashboardSidebar: React.FC = () => {
           </AnimatePresence>
           
           {sidebarCollapsed && (
-            <div className="w-9 h-9 rounded-lg bg-violet-600 flex items-center justify-center mx-auto">
+            <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center mx-auto">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
           )}
@@ -195,7 +197,7 @@ const DashboardSidebar: React.FC = () => {
                     className={cn(
                       "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
                       "hover:bg-slate-800 group text-slate-400 hover:text-white",
-                      isActive && "bg-violet-600 text-white hover:bg-violet-700 shadow-md"
+                      isActive && "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md"
                     )}
                   >
                     <item.icon className={cn("w-5 h-5 flex-shrink-0", isActive ? "text-white" : "text-slate-400 group-hover:text-white")} />

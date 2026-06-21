@@ -90,9 +90,9 @@ const Students: React.FC = () => {
   const paginatedStudents = filteredStudents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const stats = useMemo(() => [
-    { label: 'Total Students', value: students.length, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
+    { label: 'Total Students', value: students.length, icon: Users, color: 'text-primary', bg: 'bg-primary/10' },
     { label: 'Placed', value: students.filter(s => s.placedCompany).length, icon: UserCheck, color: 'text-green-600', bg: 'bg-green-50' },
-    { label: 'Active', value: students.filter(s => !s.placedCompany).length, icon: Briefcase, color: 'text-purple-600', bg: 'bg-purple-50' },
+    { label: 'Active', value: students.filter(s => !s.placedCompany).length, icon: Briefcase, color: 'text-accent-foreground', bg: 'bg-accent/15' },
     { label: 'Avg CGPA', value: (students.reduce((acc, curr) => acc + (curr.cgpa || 0), 0) / (students.length || 1)).toFixed(2), icon: GraduationCap, color: 'text-orange-600', bg: 'bg-orange-50' },
   ], [students]);
 
@@ -240,7 +240,7 @@ const Students: React.FC = () => {
             <FileSpreadsheet className="w-4 h-4" /> Import CSV
           </Button>
           
-          <Button className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleExport}>
+          <Button className="gap-2 bg-primary hover:bg-primary/90 text-white" onClick={handleExport}>
             <Download className="w-4 h-4" /> Export Report
           </Button>
         </div>
@@ -322,8 +322,8 @@ const Students: React.FC = () => {
         {/* Selected Actions Bar */}
         <AnimatePresence>
           {selectedStudents.length > 0 && (
-            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="bg-indigo-50 dark:bg-indigo-900/20 px-4 py-2 flex items-center justify-between border-b border-indigo-100 dark:border-indigo-800">
-              <span className="text-sm text-indigo-700 dark:text-indigo-300 font-medium">{selectedStudents.length} selected</span>
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="bg-primary/5 dark:bg-primary/10 px-4 py-2 flex items-center justify-between border-b border-primary/10 dark:border-primary/20">
+              <span className="text-sm text-primary font-medium">{selectedStudents.length} selected</span>
               <Button size="sm" variant="destructive" className="h-8"><Trash2 className="w-3 h-3 mr-2" /> Delete Selected</Button>
             </motion.div>
           )}
@@ -357,7 +357,7 @@ const Students: React.FC = () => {
                       <td className="px-4 py-3"><Checkbox checked={selectedStudents.includes(student._id)} onCheckedChange={() => handleSelectOne(student._id)} /></td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">
+                          <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
                             {student.name ? student.name.charAt(0).toUpperCase() : 'U'}
                           </div>
                           <div>
@@ -372,7 +372,7 @@ const Students: React.FC = () => {
                       <td className="px-4 py-3 font-semibold text-slate-700 dark:text-slate-300">{student.cgpa || '0.00'}</td>
                       <td className="px-4 py-3">
                          <div className="flex items-center gap-2">
-                            <div className={`p-1.5 rounded-md ${student.applicationCount > 0 ? 'bg-blue-50 text-blue-600' : 'bg-slate-100 text-slate-400'}`}>
+                            <div className={`p-1.5 rounded-md ${student.applicationCount > 0 ? 'bg-primary/5 text-primary' : 'bg-slate-100 text-slate-400'}`}>
                                 <Briefcase className="w-3.5 h-3.5" />
                             </div>
                             <span className={`font-medium ${student.applicationCount > 0 ? 'text-slate-700' : 'text-slate-400'}`}>
@@ -388,7 +388,7 @@ const Students: React.FC = () => {
                       <td className="px-4 py-3 text-right">
                         {/* Icons use group-hover:opacity-100, so parent TR needs 'group' class */}
                         <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:text-indigo-600" onClick={() => handleViewProfile(student._id)}><Eye className="w-4 h-4" /></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:text-primary" onClick={() => handleViewProfile(student._id)}><Eye className="w-4 h-4" /></Button>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
@@ -454,7 +454,7 @@ const Students: React.FC = () => {
                         </div>
                         <div className="text-right">
                              <div className="text-sm text-slate-500">CGPA</div>
-                             <div className="text-3xl font-bold text-indigo-600">{selectedStudent.cgpa}</div>
+                             <div className="text-3xl font-bold text-primary">{selectedStudent.cgpa}</div>
                         </div>
                      </div>
 
@@ -481,7 +481,7 @@ const Students: React.FC = () => {
                      {/* 3. Applications Table */}
                      <div>
                          <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                             <Briefcase className="w-5 h-5 text-indigo-600" /> Applied Companies
+                             <Briefcase className="w-5 h-5 text-primary" /> Applied Companies
                          </h3>
                          <div className="border rounded-lg overflow-hidden">
                              <table className="w-full text-sm">

@@ -6,6 +6,12 @@ import axios from 'axios';
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5002';
 const API_URL = `${API_BASE_URL}/api/auth`;
 
+const normalizeResumeUrl = (value?: string) => {
+  if (!value) return value;
+  if (/^https?:\/\//i.test(value)) return value;
+  return `${API_BASE_URL}${value.startsWith('/') ? '' : '/'}${value}`;
+};
+
 export interface User {
   _id: string;
   name: string;
@@ -27,10 +33,13 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   login: (email: string, password: string, role: 'student' | 'admin') => Promise<boolean>;
-  register: (data: any) => Promise<boolean>;
+  register: (data: Record<string, any>) => Promise<boolean>;
   updateUser: (userData: Partial<User>) => void;
   isLoading: boolean;
   logout: () => void;
+  isProfileComplete: () => boolean;
+  hasDismissedProfileModal: boolean;
+  dismissProfileModal: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -45,18 +54,40 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasDismissedProfileModal, setHasDismissedProfileModal] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
         try {
-            setUser(JSON.parse(storedUser));
+            const parsedUser = JSON.parse(storedUser);
+            if (parsedUser?.resumeUrl) {
+              parsedUser.resumeUrl = normalizeResumeUrl(parsedUser.resumeUrl);
+            }
+            setUser(parsedUser);
+            localStorage.setItem('user', JSON.stringify(parsedUser));
         } catch (e) {
             console.error("Failed to parse user", e);
         }
     }
     setIsLoading(false); 
   }, []);
+
+  const isProfileComplete = () => {
+    if (!user) return false;
+    return !!(
+      user.name && 
+      user.email && 
+      user.cgpa && 
+      user.department && 
+      user.year && 
+      user.phone
+    );
+  };
+
+  const dismissProfileModal = () => {
+    setHasDismissedProfileModal(true);
+  };
 
   const login = async (email: string, password: string, role: 'student' | 'admin') => {
     try {
@@ -102,7 +133,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updateUser = (updates: Partial<User>) => {
     if (user) {
-      const updatedUser = { ...user, ...updates };
+      const normalizedUpdates = {
+        ...updates,
+        resumeUrl: normalizeResumeUrl(updates.resumeUrl),
+      };
+      const updatedUser = { ...user, ...normalizedUpdates };
       setUser(updatedUser);
       localStorage.setItem('user', JSON.stringify(updatedUser));
       // No need to update 'token' key here as updates usually don't change the token
@@ -117,7 +152,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, register, logout, updateUser, isLoading }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      isAuthenticated: !!user, 
+      login, 
+      register, 
+      logout, 
+      updateUser, 
+      isLoading, 
+      isProfileComplete, 
+      hasDismissedProfileModal,
+      dismissProfileModal
+    }}>
       {children}
     </AuthContext.Provider>
   );

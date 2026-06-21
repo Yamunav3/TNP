@@ -10,7 +10,8 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
-  LogOut
+  LogOut,
+  GraduationCap
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/hooks/useAppDispatch';
 import { toggleSidebarCollapsed } from '@/store/slices/uiSlice';
@@ -22,9 +23,10 @@ const adminNavItems = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Students', href: '/admin/students', icon: Users },
   { name: 'Companies', href: '/admin/companies', icon: Building2 },
+  { name: 'Alumni', href: '/admin/alumni', icon: GraduationCap },
   { name: 'Reports', href: '/admin/reports', icon: FileText },
   { name: 'Settings', href: '/admin/settings', icon: Settings },
-  {name:'Resources',href:'/admin/ManageResources' ,icon:FileText}
+  {name:'Resources',href:'/admin/manage-resources' ,icon:FileText}
 ];
 
 const AdminSidebar: React.FC = () => {
@@ -37,7 +39,7 @@ const AdminSidebar: React.FC = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/login');
+      navigate('/login/admin');
     } catch (error) {
       console.error("Logout failed", error);
     }
@@ -66,7 +68,7 @@ const AdminSidebar: React.FC = () => {
                 exit={{ opacity: 0 }}
                 className="flex items-center gap-3"
               >
-                <div className="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
                   <ShieldCheck className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -77,7 +79,7 @@ const AdminSidebar: React.FC = () => {
           </AnimatePresence>
           
           {sidebarCollapsed && (
-            <div className="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center mx-auto">
+            <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center mx-auto">
               <ShieldCheck className="w-5 h-5 text-white" />
             </div>
           )}
@@ -102,7 +104,7 @@ const AdminSidebar: React.FC = () => {
                     className={cn(
                       "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
                       "hover:bg-slate-800 group",
-                      isActive && "bg-indigo-600 text-white shadow-md hover:bg-indigo-700"
+                      isActive && "bg-primary text-primary-foreground shadow-md hover:bg-primary/90"
                     )}
                   >
                     <item.icon className={cn(
@@ -134,7 +136,7 @@ const AdminSidebar: React.FC = () => {
             "flex items-center gap-3 p-2 rounded-lg bg-slate-800/50",
             sidebarCollapsed && "justify-center"
           )}>
-            <div className="w-9 h-9 rounded-full bg-indigo-900 border border-indigo-700 flex items-center justify-center text-xs font-bold text-indigo-200">
+            <div className="w-9 h-9 rounded-full bg-primary/15 border border-primary/25 flex items-center justify-center text-xs font-bold text-primary">
               AD
             </div>
             <AnimatePresence mode="wait">

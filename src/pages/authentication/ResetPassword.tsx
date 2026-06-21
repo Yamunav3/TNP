@@ -43,7 +43,7 @@ const ResetPassword = () => {
       toast.success("Password reset successful!");
       
       setTimeout(() => {
-        navigate('/login');
+        navigate('/login/student');
       }, 2000);
     } catch (err: any) {
       console.error("❌ Reset error:", err.response?.data || err.message);
@@ -72,7 +72,7 @@ const ResetPassword = () => {
             <p className="text-muted-foreground mt-2">You can now login with your new password</p>
           </div>
           <Button 
-            onClick={() => navigate('/login')} 
+            onClick={() => navigate('/login/student')} 
             className="w-full h-12"
           >
             Go to Login
@@ -120,7 +120,7 @@ const ResetPassword = () => {
           </Button>
         </form>
 
-        <Link to="/login" className="flex items-center justify-center gap-2 text-sm text-primary hover:underline">
+        <Link to="/login/student" className="flex items-center justify-center gap-2 text-sm text-primary hover:underline">
           <ArrowLeft className="w-4 h-4" /> Back to Login
         </Link>
       </div>

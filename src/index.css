@@ -6,11 +6,11 @@
 
 @layer base {
   :root {
-    /* Primary - Professional Blue */
-    --primary: 217 91% 50%;
+    /* Primary - Deep Navy */
+    --primary: 221 72% 36%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 217 91% 60%;
-    --primary-dark: 217 91% 40%;
+    --primary-light: 221 72% 44%;
+    --primary-dark: 221 72% 28%;
     
     /* Background & Surfaces */
     --background: 220 20% 97%;
@@ -28,9 +28,9 @@
     --muted: 215 20% 93%;
     --muted-foreground: 215 16% 47%;
     
-    /* Accent - Teal */
-    --accent: 173 80% 40%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent - Gold */
+    --accent: 43 96% 52%;
+    --accent-foreground: 222 47% 11%;
     
     /* Status Colors */
     --success: 142 76% 36%;
@@ -45,25 +45,25 @@
     /* Borders & Inputs */
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 217 91% 50%;
+    --ring: 221 72% 36%;
     
     --radius: 0.625rem;
     
     /* Sidebar */
     --sidebar-background: 222 47% 11%;
     --sidebar-foreground: 215 20% 93%;
-    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary: 221 72% 44%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 222 47% 18%;
     --sidebar-accent-foreground: 215 20% 93%;
     --sidebar-border: 222 47% 18%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-ring: 221 72% 44%;
     
     /* Custom Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(217, 91%, 50%) 0%, hsl(217, 91%, 60%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(173, 80%, 40%) 0%, hsl(173, 80%, 50%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(221, 72%, 28%) 0%, hsl(221, 72%, 44%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(43, 96%, 52%) 0%, hsl(43, 96%, 60%) 100%);
     --gradient-success: linear-gradient(135deg, hsl(142, 76%, 36%) 0%, hsl(142, 76%, 46%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(222, 47%, 11%) 0%, hsl(217, 91%, 30%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(222, 47%, 11%) 0%, hsl(221, 72%, 30%) 100%);
     
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 hsl(222 47% 11% / 0.05);
@@ -75,10 +75,10 @@
   }
 
   .dark {
-    --primary: 217 91% 60%;
+    --primary: 221 72% 44%;
     --primary-foreground: 222 47% 11%;
-    --primary-light: 217 91% 70%;
-    --primary-dark: 217 91% 50%;
+    --primary-light: 221 72% 54%;
+    --primary-dark: 221 72% 36%;
     
     --background: 222 47% 8%;
     --foreground: 215 20% 93%;
@@ -93,7 +93,7 @@
     --muted: 222 47% 15%;
     --muted-foreground: 215 16% 60%;
     
-    --accent: 173 80% 45%;
+    --accent: 43 96% 56%;
     --accent-foreground: 222 47% 11%;
     
     --success: 142 76% 46%;
@@ -103,16 +103,16 @@
     
     --border: 222 47% 18%;
     --input: 222 47% 18%;
-    --ring: 217 91% 60%;
+    --ring: 221 72% 44%;
     
     --sidebar-background: 222 47% 6%;
     --sidebar-foreground: 215 20% 93%;
-    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary: 221 72% 44%;
     --sidebar-primary-foreground: 222 47% 11%;
     --sidebar-accent: 222 47% 12%;
     --sidebar-accent-foreground: 215 20% 93%;
     --sidebar-border: 222 47% 15%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-ring: 221 72% 44%;
   }
 }
 

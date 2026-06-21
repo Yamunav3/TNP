@@ -85,8 +85,11 @@ export const deleteDrive = createAsyncThunk(
     try {
       await axios.delete(`${API_URL}/${id}`);
       return id; 
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to delete drive');
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(error.response?.data?.message || 'Failed to delete drive');
+      }
+      return rejectWithValue('Failed to delete drive');
     }
   }
 );

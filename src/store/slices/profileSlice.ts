@@ -492,10 +492,21 @@
 // export default profileSlice.reducer;
 
 
+import axios from 'axios';
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 
 export interface StudentProfile {
   id: string;
+  _id?: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  department?: string;
+  year?: string;
+  cgpa?: number;
+  backlogs?: number;
+  headline?: string;
+  image?: string;
   personalInfo: {
     firstName: string;
     lastName: string;
@@ -507,6 +518,7 @@ export interface StudentProfile {
   academicInfo: {
     branch: string;
     cgpa: number;
+    backlogs?: number;
     rollNumber: string;
     batch: number;
   };
@@ -527,34 +539,55 @@ const initialState: ProfileState = {
   error: null,
 };
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5002';
+const API_URL = `${API_BASE_URL}/api/auth`;
+
+const buildFallbackProfile = (user: any): StudentProfile => ({
+  id: user._id || '1',
+  _id: user._id,
+  name: user.name,
+  email: user.email,
+  phone: user.phone,
+  department: user.department,
+  year: user.year,
+  cgpa: user.cgpa || 0,
+  backlogs: user.backlogs || 0,
+  headline: user.headline || 'Student',
+  image: user.image,
+  personalInfo: {
+    firstName: user.name ? user.name.split(' ')[0] : 'Student',
+    lastName: user.name ? user.name.split(' ')[1] : '',
+    email: user.email || 'student@example.com',
+    phone: user.phone || '9999999999',
+    avatar: user.image || `https://ui-avatars.com/api/?name=${user.name || 'User'}&background=random`,
+    role: user.headline || 'Student'
+  },
+  academicInfo: {
+    branch: user.department || 'Computer Science',
+    cgpa: user.cgpa || 0,
+    backlogs: user.backlogs || 0,
+    rollNumber: user.rollNumber || '21B91A0501',
+    batch: user.batch || 2025
+  },
+  skills: user.skills || [],
+  profileCompletion: 70
+});
+
 // --- THUNK: Fetch Profile ---
 export const fetchProfile = createAsyncThunk('profile/fetch', async () => {
-    // Simulate API call
-    return new Promise<StudentProfile>((resolve) => {
-        setTimeout(() => {
-            // Check localStorage for user details
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            resolve({
-                id: user._id || '1',
-                personalInfo: {
-                    firstName: user.name ? user.name.split(' ')[0] : 'Student',
-                    lastName: user.name ? user.name.split(' ')[1] : '',
-                    email: user.email || 'student@example.com',
-                    phone: user.phone || '9999999999',
-                  avatar: user.image || `https://ui-avatars.com/api/?name=${user.name || 'User'}&background=random`,
-                    role: user.headline || 'Student'
-                },
-                academicInfo: {
-                    branch: user.department || 'Computer Science',
-                    cgpa: user.cgpa || 0,
-                    rollNumber: '21B91A0501',
-                    batch: 2025
-                },
-                skills: user.skills || [],
-                profileCompletion: 70
-            });
-        }, 500);
-    });
+    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = storedUser._id;
+
+    if (!userId) {
+      throw new Error('No logged in user found');
+    }
+
+    try {
+      const response = await axios.get(`${API_URL}/profile/${userId}`);
+      return buildFallbackProfile({ ...storedUser, ...response.data });
+    } catch (error) {
+      return buildFallbackProfile(storedUser);
+    }
 });
 
 const profileSlice = createSlice({
