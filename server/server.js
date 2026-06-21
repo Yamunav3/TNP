@@ -15,13 +15,10 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 const app = express();
 const server = http.createServer(app);
 
-// --- ALLOWED ORIGINS (Add your port 8080 here) ---
-// --- ALLOWED ORIGINS (Robust Version) ---
 const allowedOrigins = [
-  
-  "http://localhost:8080", // Added to be safe
-  // Added to be safe
-];
+  'http://localhost:5173',
+  process.env.FRONTEND_URL,
+].filter(Boolean);
 
 // 2. MIDDLEWARE (EXPRESS CORS)
 app.use(cors({
@@ -83,7 +80,7 @@ const normalizeQueryValue = (value) => {
 // client/src/pages/admin/ManageResources.tsx
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:8080"], // Match your frontend port[cite: 4]
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
   },
@@ -136,7 +133,7 @@ app.use('/api/resources', require('./routes/resourceRoutes'));
 app.use('/api/interview-experiences', require('./routes/interviewExperienceRoutes'));
 app.use('/api/alumni', require('./routes/alumniRoutes'));
 // 6. Start Server
-const basePort = Number(process.env.PORT || 5002);
+const basePort = Number(process.env.PORT || 5000);
 
 const canUsePort = (port) => {
   return new Promise((resolve) => {

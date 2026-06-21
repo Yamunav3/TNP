@@ -31,7 +31,7 @@ exports.googleCallback = async (req, res) => {
     };
 
     // Redirect to frontend with token (you can also return JSON)
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:8080';
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     const redirectUrl = `${frontendUrl}/auth-success?token=${token}&user=${encodeURIComponent(
       JSON.stringify(userData)
     )}`;
@@ -39,7 +39,7 @@ exports.googleCallback = async (req, res) => {
     res.redirect(redirectUrl);
   } catch (error) {
     console.error('Google OAuth callback error:', error);
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:8080'}/login?error=oauth_failed`);
+    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=oauth_failed`);
   }
 };
 
@@ -69,7 +69,7 @@ exports.githubCallback = async (req, res) => {
     };
 
     // Redirect to frontend with token
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:8080';
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     const redirectUrl = `${frontendUrl}/auth-success?token=${token}&user=${encodeURIComponent(
       JSON.stringify(userData)
     )}`;
@@ -77,7 +77,7 @@ exports.githubCallback = async (req, res) => {
     res.redirect(redirectUrl);
   } catch (error) {
     console.error('GitHub OAuth callback error:', error);
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:8080'}/login?error=oauth_failed`);
+    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=oauth_failed`);
   }
 };
 

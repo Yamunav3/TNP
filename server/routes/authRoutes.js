@@ -271,7 +271,8 @@ router.post('/forgot-password', async (req, res) => {
     console.log("💾 Token saved to database");
 
     // 4. Send Email via Brevo SMTP (with fallback for testing)
-    const resetUrl = `http://localhost:8080/reset-password/${resetToken}`;
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
     
     try {
       console.log("📨 Attempting to send email via Brevo...");
