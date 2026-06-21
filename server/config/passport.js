@@ -73,69 +73,69 @@ passport.use(
 );
 
 // GitHub OAuth Strategy
-passport.use(
-  new GitHubStrategy(
-    {
-      clientID: process.env.GITHUB_CLIENT_ID,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: '/api/auth/github/callback',
-      scope: ['user:email'],
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      try {
-        // Extract user info from GitHub profile
-        const { id, login, displayName, emails, avatar_url } = profile;
-        const email = emails && emails[0] ? emails[0].value : `${login}@github.com`;
-        const name = displayName || login;
+// passport.use(
+//   new GitHubStrategy(
+//     {
+//       clientID: process.env.GITHUB_CLIENT_ID,
+//       clientSecret: process.env.GITHUB_CLIENT_SECRET,
+//       callbackURL: '/api/auth/github/callback',
+//       scope: ['user:email'],
+//     },
+//     async (accessToken, refreshToken, profile, done) => {
+//       try {
+//         // Extract user info from GitHub profile
+//         const { id, login, displayName, emails, avatar_url } = profile;
+//         const email = emails && emails[0] ? emails[0].value : `${login}@github.com`;
+//         const name = displayName || login;
 
-        // Check if user already exists
-        let user = await User.findOne({ email });
+//         // Check if user already exists
+//         let user = await User.findOne({ email });
 
-        if (user) {
-          // Update OAuth info if user already exists
-          const existingOAuth = user.oauth.find(o => o.provider === 'github');
-          if (!existingOAuth) {
-            user.oauth.push({
-              provider: 'github',
-              oauthId: id,
-              accessToken,
-              refreshToken: refreshToken || null,
-              expiresAt: null,
-            });
-          } else {
-            existingOAuth.accessToken = accessToken;
-            existingOAuth.refreshToken = refreshToken || null;
-          }
-          user.github = login;
-          await user.save();
-        } else {
-          // Create new user if doesn't exist
-          user = await User.create({
-            name,
-            email,
-            github: login,
-            image: avatar_url,
-            role: 'student',
-            password: null, // No password for OAuth users
-            oauth: [
-              {
-                provider: 'github',
-                oauthId: id,
-                accessToken,
-                refreshToken: refreshToken || null,
-                expiresAt: null,
-              },
-            ],
-          });
-        }
+//         if (user) {
+//           // Update OAuth info if user already exists
+//           const existingOAuth = user.oauth.find(o => o.provider === 'github');
+//           if (!existingOAuth) {
+//             user.oauth.push({
+//               provider: 'github',
+//               oauthId: id,
+//               accessToken,
+//               refreshToken: refreshToken || null,
+//               expiresAt: null,
+//             });
+//           } else {
+//             existingOAuth.accessToken = accessToken;
+//             existingOAuth.refreshToken = refreshToken || null;
+//           }
+//           user.github = login;
+//           await user.save();
+//         } else {
+//           // Create new user if doesn't exist
+//           user = await User.create({
+//             name,
+//             email,
+//             github: login,
+//             image: avatar_url,
+//             role: 'student',
+//             password: null, // No password for OAuth users
+//             oauth: [
+//               {
+//                 provider: 'github',
+//                 oauthId: id,
+//                 accessToken,
+//                 refreshToken: refreshToken || null,
+//                 expiresAt: null,
+//               },
+//             ],
+//           });
+//         }
 
-        return done(null, user);
-      } catch (error) {
-        return done(error, null);
-      }
-    }
-  )
-);
+//         return done(null, user);
+//       } catch (error) {
+//         return done(error, null);
+//       }
+//     }
+//   )
+// );
 
 // Serialize user
 passport.serializeUser((user, done) => {
