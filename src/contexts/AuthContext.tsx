@@ -3,8 +3,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5002';
-const API_URL = `${API_BASE_URL}/api/auth`;
+// Backend URL
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || 'http://localhost:5002';
+
+// Auth API URL
+const AUTH_API_URL = `${API_BASE_URL}/api/auth`;
 
 const normalizeResumeUrl = (value?: string) => {
   if (!value) return value;
@@ -89,48 +93,60 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setHasDismissedProfileModal(true);
   };
 
-  const login = async (email: string, password: string, role: 'student' | 'admin') => {
-    try {
-      const response = await axios.post(`${API_URL}/login`, { email, password, role });
-      if (response.data) {
-        setUser(response.data);
-        
-        // --- FIX 1: Save Token Separately ---
-        localStorage.setItem('user', JSON.stringify(response.data));
-        if (response.data.token) {
-            localStorage.setItem('token', response.data.token); 
-        }
-        
-        return true;
+ const login = async (
+  email: string,
+  password: string,
+  role: 'student' | 'admin'
+) => {
+  try {
+    const response = await axios.post(
+      `${AUTH_API_URL}/login`,
+      { email, password, role }
+    );
+
+    if (response.data) {
+      setUser(response.data);
+
+      localStorage.setItem('user', JSON.stringify(response.data));
+
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
       }
-      return false;
-    } catch (error) {
-      console.error("Login Error:", error);
-      return false;
+
+      return true;
     }
-  };
 
-  const register = async (data: any) => {
-    try {
-      const response = await axios.post(`${API_URL}/register`, { ...data, role: 'student' });
-      if (response.data) {
-        setUser(response.data);
+    return false;
+  } catch (error) {
+    console.error('Login Error:', error);
+    return false;
+  }
+};
+const register = async (data: any) => {
+  try {
+    const response = await axios.post(
+      `${AUTH_API_URL}/register`,
+      { ...data, role: 'student' }
+    );
 
-        // --- FIX 2: Save Token Separately on Register too ---
-        localStorage.setItem('user', JSON.stringify(response.data));
-        if (response.data.token) {
-            localStorage.setItem('token', response.data.token);
-        }
+    if (response.data) {
+      setUser(response.data);
 
-        return true;
+      localStorage.setItem('user', JSON.stringify(response.data));
+
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
       }
-      return false;
-    } catch (error) {
-      console.error("Registration Error:", error);
-      return false;
-    }
-  };
 
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    console.error('Registration Error:', error);
+    return false;
+  }
+};
   const updateUser = (updates: Partial<User>) => {
     if (user) {
       const normalizedUpdates = {
