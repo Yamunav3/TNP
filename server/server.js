@@ -16,13 +16,41 @@ const app = express();
 const server = http.createServer(app);
 
 const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
   'http://localhost:5175',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:5174',
+  'http://127.0.0.1:5175',
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+  if (allowedOrigins.includes(origin)) return true;
+
+  // Allow any localhost/127.0.0.1 dev frontend port when running locally.
+  try {
+    const url = new URL(origin);
+    return (
+      (url.hostname === 'localhost' || url.hostname === '127.0.0.1') &&
+      /^517\d$/.test(url.port)
+    );
+  } catch {
+    return false;
+  }
+};
+
 // 2. MIDDLEWARE (EXPRESS CORS)
 app.use(cors({
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    if (isAllowedOrigin(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
@@ -80,7 +108,14 @@ const normalizeQueryValue = (value) => {
 // client/src/pages/admin/ManageResources.tsx
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (isAllowedOrigin(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
   },
