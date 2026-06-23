@@ -106,7 +106,17 @@ router.post('/login', async (req, res) => {
     // --- 2. REGULAR DATABASE LOGIN (For Students) ---
     const user = await User.findOne({ email });
 
-    if (user && (await bcrypt.compare(password, user.password))) {
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    if (!user.password) {
+      return res.status(401).json({
+        message: 'This account uses Google sign-in. Please continue with Google.',
+      });
+    }
+
+    if (await bcrypt.compare(password, user.password)) {
       // Optional: Strict Role Check
       if (role && user.role !== role) {
         return res.status(401).json({ message: `Access denied. You are not an ${role}.` });
@@ -131,9 +141,9 @@ router.post('/login', async (req, res) => {
         resumeUrl: user.resumeUrl,
         token: generateToken(user._id),
       });
-    } else {
-      res.status(401).json({ message: 'Invalid email or password' });
     }
+
+    return res.status(401).json({ message: 'Invalid email or password' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -271,7 +281,7 @@ router.post('/forgot-password', async (req, res) => {
     console.log("💾 Token saved to database");
 
     // 4. Send Email via Brevo SMTP (with fallback for testing)
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5175';
     const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
     
     try {

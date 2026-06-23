@@ -2,7 +2,7 @@
 // // // // import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 // // // // import axios from 'axios';
 
-// // // // const API_URL = 'http://localhost:5000/api/admin';
+// // // // const API_URL = 'http://localhost:5002/api/admin';
 
 // // // // // --- Interfaces ---
 // // // // export interface Student {
@@ -115,7 +115,7 @@
 // // // import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 // // // import axios from 'axios';
 
-// // // const API_URL = 'http://localhost:5000/api/admin';
+// // // const API_URL = 'http://localhost:5002/api/admin';
 
 // // // // --- Interfaces ---
 // // // export interface Student {
@@ -232,7 +232,7 @@
 // // import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 // // import axios from 'axios';
 
-// // const API_URL = 'http://localhost:5000/api/admin';
+// // const API_URL = 'http://localhost:5002/api/admin';
 
 // // // --- Interfaces for Dashboard Data ---
 // // export interface DashboardStats {
@@ -322,7 +322,7 @@
 // import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 // import axios from 'axios';
 
-// const API_URL = 'http://localhost:5000/api/admin';
+// const API_URL = 'http://localhost:5002/api/admin';
 
 // // --- 1. UPDATE THIS INTERFACE ---
 // export interface DashboardStats {
@@ -421,7 +421,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/admin';
+const API_URL = 'http://localhost:5002/api/admin';
 
 // ==========================================
 // 1. INTERFACES (Types)

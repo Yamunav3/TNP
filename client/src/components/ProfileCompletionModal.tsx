@@ -16,7 +16,7 @@ import { GraduationCap, MapPin, Phone, Briefcase, AlertCircle } from 'lucide-rea
 import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5002';
 
 const ProfileCompletionModal: React.FC = () => {
   const { user, updateUser, isProfileComplete, hasDismissedProfileModal, dismissProfileModal } = useAuth();

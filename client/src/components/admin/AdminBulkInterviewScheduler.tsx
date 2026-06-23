@@ -76,7 +76,7 @@ const AdminBulkInterviewScheduler: React.FC = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/drives', {
+      const response = await fetch('http://localhost:5002/api/drives', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -105,7 +105,7 @@ const AdminBulkInterviewScheduler: React.FC = () => {
   const fetchStudentsForDrive = async (driveId: string) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/applications/drive/${driveId}`, {
+      const response = await fetch(`http://localhost:5002/api/applications/drive/${driveId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -178,7 +178,7 @@ const AdminBulkInterviewScheduler: React.FC = () => {
     try {
       setSubmitting(true);
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/interviews/create-bulk', {
+      const response = await fetch('http://localhost:5002/api/interviews/create-bulk', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

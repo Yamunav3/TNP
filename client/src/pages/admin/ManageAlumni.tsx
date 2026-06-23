@@ -45,7 +45,7 @@ const ManageAlumni = () => {
   // 1. READ: Fetch all alumni
   const fetchAlumni = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/alumni/admin/all', { headers: authHeaders() });
+      const { data } = await axios.get('http://localhost:5002/api/alumni/admin/all', { headers: authHeaders() });
       setAlumni(data);
     } catch (err) {
       console.error("Failed to fetch alumni");
@@ -63,7 +63,7 @@ const ManageAlumni = () => {
 
     setLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/alumni', {
+      await axios.post('http://localhost:5002/api/alumni', {
         ...formData,
         skills: formData.skills.split(',').map(s => s.trim()).filter(s => s)
       }, { headers: authHeaders() });
@@ -92,7 +92,7 @@ const ManageAlumni = () => {
     if (!window.confirm("Permanently delete this alumni?")) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/alumni/${id}`, { headers: authHeaders() });
+      await axios.delete(`http://localhost:5002/api/alumni/${id}`, { headers: authHeaders() });
       setAlumni((prev) => prev.filter((a) => a._id !== id));
       toast.success("Alumni deleted successfully");
     } catch (err) {
@@ -104,7 +104,7 @@ const ManageAlumni = () => {
   // 4. UPDATE: Save edits
   const handleUpdate = async (id: string) => {
     try {
-      await axios.put(`http://localhost:5000/api/alumni/${id}`, {
+      await axios.put(`http://localhost:5002/api/alumni/${id}`, {
         ...editData,
         skills: editData.skills.split(',').map(s => s.trim()).filter(s => s)
       }, { headers: authHeaders() });

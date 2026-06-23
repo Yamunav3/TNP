@@ -3,7 +3,7 @@
 // import axios from 'axios';
 
 // // Ensure this matches your backend port (default 5000)
-// const API_URL = 'http://localhost:5000/api/ai';
+// const API_URL = 'http://localhost:5002/api/ai';
 
 // // --- TYPE DEFINITIONS ---
 // export interface QuizQuestion {
@@ -77,7 +77,7 @@
 import axios from 'axios';
 
 // Ensure this matches your backend URL
-const API_URL = 'http://localhost:5000/api/ai';
+const API_URL = 'http://localhost:5002/api/ai';
 
 export interface QuizQuestion {
   question: string;

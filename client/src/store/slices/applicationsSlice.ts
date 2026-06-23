@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 // Ensure this matches your backend URL
-const API_URL = 'http://localhost:5000/api/applications';
+const API_URL = 'http://localhost:5002/api/applications';
 
 export type ApplicationStatus = 'applied' | 'screening' | 'shortlisted' | 'interview' | 'selected' | 'rejected';
 

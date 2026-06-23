@@ -20,7 +20,7 @@ const Resources = () => {
   useEffect(() => {
     const fetchResources = async () => {
       try {
-        const { data } = await axios.get('http://localhost:5000/api/resources/all');
+        const { data } = await axios.get('http://localhost:5002/api/resources/all');
         setResources(data);
       } catch (err) {
         console.error("Error fetching resources:", err);

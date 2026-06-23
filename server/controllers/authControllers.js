@@ -18,7 +18,7 @@ exports.forgotPassword = async (req, res) => {
     await user.save();
 
     // 4. Send Email via Nodemailer
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5175';
     const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
     const transporter = nodemailer.createTransport({
       service: 'Gmail',

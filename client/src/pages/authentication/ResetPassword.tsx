@@ -32,7 +32,7 @@ const ResetPassword = () => {
     try {
       console.log("📝 Submitting reset password with token:", token?.substring(0, 10) + "...");
       
-      const response = await axios.post('http://localhost:5000/api/auth/reset-password', {
+      const response = await axios.post('http://localhost:5002/api/auth/reset-password', {
         token,
         password,
         confirmPassword

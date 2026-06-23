@@ -39,7 +39,7 @@
 
 // // --- CONFIG ---
 // // Replace with your actual Backend URL
-// const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:5002';
 
 // const notificationIcons = {
 //   info: Info,
@@ -345,7 +345,7 @@ import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { ModeToggle } from "@/components/mode-toggle";
 
-const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:5002';
 
 const notificationIcons = {
   info: Info,

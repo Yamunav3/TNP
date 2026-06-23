@@ -17,7 +17,7 @@ const ForgotPassword = () => {
     setLoading(true);
     try {
       // Step 1: Send email to backend
-      await axios.post('http://localhost:5000/api/auth/forgot-password', { email });
+      await axios.post('http://localhost:5002/api/auth/forgot-password', { email });
       toast.success("Reset link sent to your email!");
       setSuccess(true);
       

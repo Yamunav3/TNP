@@ -14,7 +14,9 @@ router.get(
 // Google OAuth callback
 router.get(
   '/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login?error=oauth_failed' }),
+  passport.authenticate('google', {
+    failureRedirect: `${process.env.FRONTEND_URL || 'http://localhost:5175'}/login/student?error=oauth_failed`,
+  }),
   oauthController.googleCallback
 );
 
@@ -28,7 +30,9 @@ router.get(
 // GitHub OAuth callback
 router.get(
   '/github/callback',
-  passport.authenticate('github', { failureRedirect: '/login?error=oauth_failed' }),
+  passport.authenticate('github', {
+    failureRedirect: `${process.env.FRONTEND_URL || 'http://localhost:5175'}/login/student?error=oauth_failed`,
+  }),
   oauthController.githubCallback
 );
 

@@ -100,7 +100,7 @@ const AlumniCorner: React.FC = () => {
       if (selectedCompany && selectedCompany !== 'all') params.append('company', selectedCompany);
       if (selectedBranch && selectedBranch !== 'all') params.append('branch', selectedBranch);
 
-      const res = await fetch(`http://localhost:5000/api/alumni?${params.toString()}`);
+      const res = await fetch(`http://localhost:5002/api/alumni?${params.toString()}`);
       const data = await res.json();
       setAlumni(data);
     } catch (error) {
@@ -113,7 +113,7 @@ const AlumniCorner: React.FC = () => {
     // Fetch requests
     const fetchRequests = async () => {
         try {
-            const res = await fetch(`http://localhost:5000/api/alumni/mentorship/requests?type=sent`, {
+            const res = await fetch(`http://localhost:5002/api/alumni/mentorship/requests?type=sent`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`,
                 }
@@ -136,7 +136,7 @@ const AlumniCorner: React.FC = () => {
             return;
         }
         try {
-            const res = await fetch('http://localhost:5000/api/alumni/mentorship/requests', {
+            const res = await fetch('http://localhost:5002/api/alumni/mentorship/requests', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

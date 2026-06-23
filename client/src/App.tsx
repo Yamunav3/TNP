@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { Provider } from "react-redux";
 import { store } from "./store";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
@@ -44,13 +44,19 @@ import ManageAlumni from "./pages/admin/ManageAlumni";
 import AdminProfile from "./pages/admin/Profile";
 const queryClient = new QueryClient();
 
+const LoginRedirect = () => {
+  const location = useLocation();
+
+  return <Navigate to={`/login/student${location.search}`} replace />;
+};
+
 // --- PROTECTED ROUTE WRAPPER ---
 
 // Typical path: src/context/SocketContext.tsx
 
 
 // You would replace the existing connection logic with your specific config:
-const socket = io('http://localhost:5000', {
+const socket = io('http://localhost:5002', {
   query: {
     userId: 'admin-static-id', 
     role: 'admin'
@@ -80,7 +86,7 @@ const AppRoutes = () => {
   return (
     <Routes>
       {/* --- AUTH ROUTES --- */}
-      <Route path="/login" element={<Navigate to="/login/student" replace />} />
+      <Route path="/login" element={<LoginRedirect />} />
       <Route path="/login/student" element={
         isAuthenticated ? <Navigate to={user?.role === 'admin' ? '/admin' : '/dashboard'} replace /> : <Login />
       } />

@@ -8,7 +8,7 @@ interface OAuthButtonProps {
 }
 
 export const OAuthButton: React.FC<OAuthButtonProps> = ({ provider, onClick, compact = false }) => {
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5002';
 
   const handleOAuthLogin = () => {
     if (onClick) {

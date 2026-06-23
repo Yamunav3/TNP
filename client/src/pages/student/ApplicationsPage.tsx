@@ -141,7 +141,7 @@
 //   useEffect(() => {
 //     if (!profile) return;
 
-//     const socket = io("http://localhost:5000", {
+//     const socket = io("http://localhost:5002", {
 //       query: { 
 //         userId: (profile as any)._id, 
 //         role: "student" 
