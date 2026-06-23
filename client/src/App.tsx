@@ -43,6 +43,7 @@ import ManageResources from "./pages/admin/ManageResources";
 import ManageAlumni from "./pages/admin/ManageAlumni";
 import AdminProfile from "./pages/admin/Profile";
 const queryClient = new QueryClient();
+const API_URL = import.meta.env.VITE_API_URL;
 
 const LoginRedirect = () => {
   const location = useLocation();
@@ -56,7 +57,7 @@ const LoginRedirect = () => {
 
 
 // You would replace the existing connection logic with your specific config:
-const socket = io('http://localhost:5002', {
+const socket = io(API_URL, {
   query: {
     userId: 'admin-static-id', 
     role: 'admin'

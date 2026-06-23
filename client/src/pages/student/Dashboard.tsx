@@ -35,6 +35,7 @@ const getGreeting = (name: string) => {
 };
 
 const Dashboard: React.FC = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   
@@ -53,7 +54,7 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     if (!profile) return;
 
-    const socket = io("http://localhost:5002", {
+    const socket = io(API_URL, {
       query: { 
         userId: (profile as any)._id, 
         role: "student" 

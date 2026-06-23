@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
 
 const Resources = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const [resources, setResources] = useState<Record<string, any>[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('All');
@@ -20,7 +21,7 @@ const Resources = () => {
   useEffect(() => {
     const fetchResources = async () => {
       try {
-        const { data } = await axios.get('http://localhost:5002/api/resources/all');
+        const { data } = await axios.get(`${API_URL}/api/resources/all`);
         setResources(data);
       } catch (err) {
         console.error("Error fetching resources:", err);

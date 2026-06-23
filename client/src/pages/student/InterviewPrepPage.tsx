@@ -121,7 +121,7 @@ const InterviewPrepPage: React.FC = () => {
       const params = new URLSearchParams();
       if (searchTerm) params.append('search', searchTerm);
 
-      const res = await fetch(`http://localhost:5002/api/interview-experiences?${params.toString()}`);
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/interview-experiences?${params.toString()}`);
       const data = await res.json();
       setExperiences(data);
     } catch (error) {
@@ -134,7 +134,7 @@ const InterviewPrepPage: React.FC = () => {
   // --- SUBMIT EXPERIENCE ---
   const submitExperience = async () => {
     try {
-      const res = await fetch('http://localhost:5002/api/interview-experiences', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/interview-experiences`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -155,7 +155,7 @@ const InterviewPrepPage: React.FC = () => {
   // --- UPVOTE EXPERIENCE ---
   const toggleUpvote = async (id: string) => {
     try {
-      await fetch(`http://localhost:5002/api/interview-experiences/${id}/upvote`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/interview-experiences/${id}/upvote`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -296,7 +296,7 @@ const InterviewPrepPage: React.FC = () => {
       const formData = new FormData();
       formData.append('resume', file);
 
-      const response = await fetch('http://localhost:5002/api/ai/upload-resume', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/ai/upload-resume`, {
         method: 'POST',
         body: formData,
         headers: {

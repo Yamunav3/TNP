@@ -28,6 +28,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import AdminSidebar from './AdminSidebar';
 
 const AdminDashboard: React.FC = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -47,7 +48,7 @@ const AdminDashboard: React.FC = () => {
     if (!user || user.role !== 'admin') return;
 
     // Connect to Backend Socket
-    const socket = io('http://localhost:5002', {
+    const socket = io(API_URL, {
       query: { 
         userId: user._id,
         role: user.role // Important: Tells server to add us to 'admins' room

@@ -51,6 +51,7 @@ interface InterviewScheduleRequest {
 }
 
 const AdminBulkInterviewScheduler: React.FC = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const { toast } = useToast();
   const [drives, setDrives] = useState<Drive[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
@@ -76,7 +77,7 @@ const AdminBulkInterviewScheduler: React.FC = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5002/api/drives', {
+      const response = await fetch(`${API_URL}/api/drives`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -105,7 +106,7 @@ const AdminBulkInterviewScheduler: React.FC = () => {
   const fetchStudentsForDrive = async (driveId: string) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5002/api/applications/drive/${driveId}`, {
+      const response = await fetch(`${API_URL}/api/applications/drive/${driveId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -178,7 +179,7 @@ const AdminBulkInterviewScheduler: React.FC = () => {
     try {
       setSubmitting(true);
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5002/api/interviews/create-bulk', {
+      const response = await fetch(`${API_URL}/api/interviews/create-bulk`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

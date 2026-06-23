@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 const ManageResources = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   // --- States ---
   const [resources, setResources] = useState<Record<string, any>[]>([]);
   const [file, setFile] = useState<File | null>(null);
@@ -30,7 +31,7 @@ const ManageResources = () => {
   // 1. READ: Fetch all resources
   const fetchResources = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5002/api/resources/all');
+      const { data } = await axios.get(`${API_URL}/api/resources/all`);
       setResources(data);
     } catch (err) {
       console.error("Failed to fetch resources");
@@ -58,7 +59,7 @@ const ManageResources = () => {
 
     setLoading(true);
     try {
-      await axios.post('http://localhost:5002/api/resources/upload', data);
+      await axios.post(`${API_URL}/api/resources/upload`, data);
       toast.success("Resource published!");
       setFormData({ title: '', category: 'DSA Sheet', companyName: '' });
       setFile(null);
@@ -79,7 +80,7 @@ const handleDelete = async (id: string) => {
 
   try {
     // 1. Call the backend
-    await axios.delete(`http://localhost:5002/api/resources/${id}`);
+    await axios.delete(`${API_URL}/api/resources/${id}`);
     
     // 2. Update UI state instantly without a page reload
     setResources((prev) => prev.filter((res) => res._id !== id));
@@ -93,7 +94,7 @@ const handleDelete = async (id: string) => {
   // 4. UPDATE: Save edits
   const handleUpdate = async (id: string) => {
     try {
-      await axios.put(`http://localhost:5002/api/resources/${id}`, editData);
+      await axios.put(`${API_URL}/api/resources/${id}`, editData);
       toast.success("Resource updated");
       setEditingId(null);
       fetchResources();

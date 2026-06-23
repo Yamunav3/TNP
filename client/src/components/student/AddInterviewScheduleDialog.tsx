@@ -42,6 +42,7 @@ const AddInterviewScheduleDialog: React.FC<AddInterviewScheduleDialogProps> = ({
   onOpenChange,
   onScheduleAdded,
 }) => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [applications, setApplications] = useState<Application[]>([]);
@@ -62,7 +63,7 @@ const AddInterviewScheduleDialog: React.FC<AddInterviewScheduleDialogProps> = ({
     try {
       setLoadingApps(true);
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5002/api/applications/my-applications', {
+      const response = await fetch(`${API_URL}/api/applications/my-applications`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -148,7 +149,7 @@ const AddInterviewScheduleDialog: React.FC<AddInterviewScheduleDialogProps> = ({
       setLoading(true);
       const token = localStorage.getItem('token');
       
-      const response = await fetch('http://localhost:5002/api/interviews/add-manual', {
+      const response = await fetch(`${API_URL}/api/interviews/add-manual`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

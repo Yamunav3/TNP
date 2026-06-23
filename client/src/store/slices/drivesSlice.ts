@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 // Update this if your backend port changes
-const API_URL = 'http://localhost:5002/api/drives';
+const API_URL = `${import.meta.env.VITE_API_URL}/api/drives`;
 
 // --- Types ---
 export interface Drive {

@@ -35,7 +35,7 @@ const SchedulePage: React.FC = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5002/api/interviews/upcoming', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/interviews/upcoming`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

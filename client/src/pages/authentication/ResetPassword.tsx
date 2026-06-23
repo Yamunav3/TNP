@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'react-hot-toast';
 
 const ResetPassword = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
   
@@ -32,7 +33,7 @@ const ResetPassword = () => {
     try {
       console.log("📝 Submitting reset password with token:", token?.substring(0, 10) + "...");
       
-      const response = await axios.post('http://localhost:5002/api/auth/reset-password', {
+      const response = await axios.post(`${API_URL}/api/auth/reset-password`, {
         token,
         password,
         confirmPassword

@@ -16,7 +16,7 @@ import { GraduationCap, MapPin, Phone, Briefcase, AlertCircle } from 'lucide-rea
 import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5002';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const ProfileCompletionModal: React.FC = () => {
   const { user, updateUser, isProfileComplete, hasDismissedProfileModal, dismissProfileModal } = useAuth();
@@ -78,7 +78,7 @@ const ProfileCompletionModal: React.FC = () => {
         address: formData.address,
       };
       
-      const res = await axios.put(`${API_BASE_URL}/api/auth/profile`, payload);
+      const res = await axios.put(`${API_URL}/api/auth/profile`, payload);
       const updatedUser = res.data?.user ?? res.data;
       
       if (updatedUser) {

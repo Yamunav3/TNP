@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'react-hot-toast';
 
 const ForgotPassword = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -17,7 +18,7 @@ const ForgotPassword = () => {
     setLoading(true);
     try {
       // Step 1: Send email to backend
-      await axios.post('http://localhost:5002/api/auth/forgot-password', { email });
+      await axios.post(`${API_URL}/api/auth/forgot-password`, { email });
       toast.success("Reset link sent to your email!");
       setSuccess(true);
       

@@ -23,7 +23,7 @@ import { useAppDispatch } from '@/hooks/useAppDispatch';
 import { fetchProfile } from '@/store/slices/profileSlice';
 import { useToast } from '@/hooks/use-toast';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5002';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const ProfilePage = () => {
   const { user, updateUser } = useAuth();
@@ -75,7 +75,7 @@ const ProfilePage = () => {
     setIsSaving(true);
     try {
     const payload = { userId: user?._id, ...updatedData };
-      const res = await axios.put(`${API_BASE_URL}/api/auth/profile`, payload);
+      const res = await axios.put(`${API_URL}/api/auth/profile`, payload);
       const updatedUser = res.data?.user ?? res.data;
       if (updatedUser) {
         updateUser(updatedUser);
