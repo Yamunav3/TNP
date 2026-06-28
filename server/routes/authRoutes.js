@@ -250,10 +250,7 @@ router.post('/upload', upload.single('file'), (req, res) => {
   }
 });
 
-  const { registerUser } = require('../controllers/userControllers');
-
-// Define the registration route
-router.post('/register', registerUser);
+ 
 // @route   POST /api/auth/forgot-password
 // @desc    Send password reset email
 router.post('/forgot-password', async (req, res) => {

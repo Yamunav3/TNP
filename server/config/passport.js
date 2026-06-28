@@ -22,6 +22,11 @@ const backendUrl = normalizeBackendUrl(
   "http://localhost:5002"
 );
 
+
+
+// console.log("CLIENT_ID:", process.env.GOOGLE_CLIENT_ID);
+// console.log("CALLBACK:", process.env.GOOGLE_CALLBACK_URL);
+// console.log("FRONTEND:", process.env.FRONTEND_URL);
 passport.use(
   new GoogleStrategy(
     {
