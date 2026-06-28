@@ -8,13 +8,14 @@ interface OAuthButtonProps {
 }
 
 export const OAuthButton: React.FC<OAuthButtonProps> = ({ provider, onClick, compact = false }) => {
-  const apiUrl = import.meta.env.VITE_API_URL;
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5002';
+  const backendUrl = apiUrl.replace(/\/+$/, '');
 
   const handleOAuthLogin = () => {
     if (onClick) {
       onClick();
     }
-    window.location.href = `${apiUrl}/api/auth/${provider}`;
+    window.location.href = `${backendUrl}/api/auth/${provider}`;
   };
 
   const buttonText = provider === 'google' ? 'Google' : 'GitHub';

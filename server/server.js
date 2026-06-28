@@ -15,19 +15,27 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 const app = express();
 const server = http.createServer(app);
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:5174',
+const localOrigins = [
+  
   'http://localhost:5175',
   'http://127.0.0.1:5173',
   'http://127.0.0.1:5174',
   'http://127.0.0.1:5175',
+];
+
+const envOrigins = [
   process.env.FRONTEND_URL,
-].filter(Boolean);
+  process.env.ALLOWED_ORIGINS,
+]
+  .flatMap((value) => (value ? value.split(',') : []))
+  .map((value) => value.trim())
+  .filter(Boolean);
+
+const allowedOrigins = new Set([...localOrigins, ...envOrigins]);
 
 const isAllowedOrigin = (origin) => {
   if (!origin) return true;
-  if (allowedOrigins.includes(origin)) return true;
+  if (allowedOrigins.has(origin)) return true;
 
   // Allow any localhost/127.0.0.1 dev frontend port when running locally.
   try {

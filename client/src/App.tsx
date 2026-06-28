@@ -8,7 +8,6 @@ import { Provider } from "react-redux";
 import { store } from "./store";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import ProfileCompletionModal from "./components/ProfileCompletionModal";
-import { io } from 'socket.io-client';
 // --- PAGES: AUTH ---
 import Login from "./pages/authentication/Login";
 import Register from "./pages/authentication/Register";
@@ -52,20 +51,6 @@ const LoginRedirect = () => {
 };
 
 // --- PROTECTED ROUTE WRAPPER ---
-
-// Typical path: src/context/SocketContext.tsx
-
-
-// You would replace the existing connection logic with your specific config:
-const socket = io(API_URL, {
-  query: {
-    userId: 'admin-static-id', 
-    role: 'admin'
-  },
-  transports: ['websocket'], 
-  reconnectionAttempts: 5
-});
-
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: 'student' | 'admin' }> = ({ children, role }) => {
   const { isAuthenticated, user } = useAuth();

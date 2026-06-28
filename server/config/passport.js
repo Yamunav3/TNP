@@ -10,12 +10,26 @@ const generateToken = (id) => {
 };
 
 // Google OAuth Strategy
+const normalizeBackendUrl = (value, fallback) => {
+  const raw = String(value || fallback || "").trim().replace(/\/+$/, "");
+  return raw;
+};
+
+const backendUrl = normalizeBackendUrl(
+  process.env.BACKEND_URL ||
+    process.env.RENDER_EXTERNAL_URL ||
+    process.env.API_URL,
+  "http://localhost:5002"
+);
+
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: '/api/auth/google/callback',
+      callbackURL:
+        process.env.GOOGLE_CALLBACK_URL ||
+        `${backendUrl}/api/auth/google/callback`,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
